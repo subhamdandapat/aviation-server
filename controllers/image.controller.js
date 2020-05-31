@@ -39,7 +39,7 @@ router.post('/upload', (request, response) => {
         else if (request.file) {
 
             image = request.file;
-            let resizedImagePath = 'uplods/thumb-' + image.filename;
+            let resizedImagePath = 'uploads/thumb-' + image.filename;
             // 
             gm(image.path)
                 .resize(64, 64)
@@ -110,7 +110,7 @@ router.get('/get', (request, response) => {
         else if (result) {
             if (select == "thumbnail") {
                 response.set({
-                    "Content-Disposition": 'attachment; filename="' + 'uplods/thumb-' + result.file.originalname + '"',
+                    "Content-Disposition": 'attachment; filename="' + 'uploads/thumb-' + result.file.originalname + '"',
                     "Content-Type": result.thumbnail.mimetype
                 });
                 fs.createReadStream(result.thumbnail.path).pipe(response);
