@@ -7,6 +7,7 @@ const Attendant = require('./../models/attendant.model');
 const helper = require('./../helpers/email.helper');
 const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
+const jwthelper = require('./../helpers/token.helper');
 
 router.post('/register', function (req, res) {
     bcrypt.hash(req.body.password, 8, (err, hashedPassword) => {
@@ -86,7 +87,7 @@ function getProfile(role, user_id) {
         Collection.findOne({
             user_id: user_id
         }, function (error, success) {
-            console.log(error,success)
+            console.log(error, success)
             if (!error && success != null) {
                 resolve(success)
             } else {
@@ -100,6 +101,11 @@ function getProfile(role, user_id) {
 router.post('/login', function (req, res) {
     let email = req.body.email;
     let password = req.body.password;
+    let  client = {
+        agent: req.header('user-agent'), // User Agent we get from headers
+        referrer: req.header('referrer'), //  Likewise for referrer
+        ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
+    };
     Users.findOne({
         email: email,
     }, function (error, success) {
@@ -118,20 +124,23 @@ router.post('/login', function (req, res) {
                         let designation = success.designation;
                         let user_id = success._id;
                         getProfile(designation, user_id)
-                            .then(function (success) {
-                                console.log(error,success)
-                                    res.status(200).json({
-                                        error: false,
-                                        message: 'User logged in successfully',
-                                        data: success
-                                    })
-                                },function(error){
-                                    res.status(200).json({
-                                        error: true,
-                                        message: 'Wrong Credentials',
-                                        data: error
-                                    })
-                                });
+                            .then(function (profile) {
+                                // with JWT
+                                jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
+                                    .then(function (success) {
+                                        res.status(200).json({
+                                            error: false,
+                                            message: 'User logged in successfully',
+                                            data: success.token
+                                        })
+                                    });
+                            }, function (error) {
+                                res.status(200).json({
+                                    error: true,
+                                    message: 'Wrong Credentials',
+                                    data: error
+                                })
+                            });
                     } else {
                         res.status(200).json({
                             error: true,
