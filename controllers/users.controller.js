@@ -97,11 +97,41 @@ function getProfile(role, user_id) {
     });
 }
 
+function getProfileByProfileId(role, user_id) {
+    return new Promise(function (resolve, reject) {
+        let Collection;
+        switch (role) {
+            case 'Pilot':
+                Collection = Pilots;
+                break;
+            case 'Flight Attendant':
+                Collection = Attendant;
+                break;
+            case 'Mechanic':
+                Collection = Mechanic;
+                break;
+            default:
+                reject({})
+                break;
+        }
+
+        Collection.findOne({
+            _id: user_id
+        }, function (error, success) {
+            if (!error && success != null) {
+                resolve(success)
+            } else {
+                reject(error)
+            }
+        })
+    });
+}
+
 
 router.post('/login', function (req, res) {
     let email = req.body.email;
     let password = req.body.password;
-    let  client = {
+    let client = {
         agent: req.header('user-agent'), // User Agent we get from headers
         referrer: req.header('referrer'), //  Likewise for referrer
         ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
@@ -118,7 +148,7 @@ router.post('/login', function (req, res) {
                         message: 'Wrong credentials',
                         data: {}
                     })
-                } else {
+                } else if(isMatch) {
                     let verified = success.verified;
                     if (verified) {
                         let designation = success.designation;
@@ -148,6 +178,12 @@ router.post('/login', function (req, res) {
                             data: {}
                         })
                     }
+                }else{
+                    res.status(200).json({
+                        error: true,
+                        message: 'Wrong credentials',
+                        data: {}
+                    })
                 }
             });
         } else {
@@ -160,6 +196,133 @@ router.post('/login', function (req, res) {
     })
 })
 
+router.post('/requestpasswordchange', function (req, res) {
+    let email = req.body.email;
+    if (!email) {
+        res.status(200).json({
+            error: true,
+            message: 'Provide a valid email address',
+            data: {}
+        })
+    } else {
+        let client = {
+            agent: req.header('user-agent'), // User Agent we get from headers
+            referrer: req.header('referrer'), //  Likewise for referrer
+            ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
+        };
+        findUserByEmail(email)
+            .then(function (user) {
+                getProfile(user.designation, user._id)
+                    .then(function (profile) {
+                        jwthelper.generateToken(profile._id, user.designation, client.ip, client.agent)
+                            .then(function (success) {
+                                let passwordurl = 'http://localhost:4200/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
+                                EmailHelper.sendEmail(email, 'Password Reset Email', "<p>Dear Mr./Mrs./Ms. " + user.last_name + ", click <a href='" + passwordurl + "'>here </a> to reset password.</p>");
+                                res.status(200).json({
+                                    error: false,
+                                    message: 'Password reset email has been set to ' + email + '. Please check your email.',
+                                    data: {}
+                                })
+                            });
+                    }, function (error) {
+                        res.status(200).json({
+                            error: true,
+                            message: 'User not found with this email : ' + email,
+                            data: {}
+                        })
+                    });
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'User not found with this email : ' + email,
+                    data: {}
+                })
+            });
+    }
+})
 
+router.put('/changepassword', function (req, res) {
+    let password = req.body.password;
+    let confirmpassword = req.body.confirmpassword;
+    let token = req.body.token;
+    console.log(password, confirmpassword)
+    if (!password || !confirmpassword) {
+        res.status(200).json({
+            error: true,
+            message: 'Please provide both password and confirm password',
+            data: {}
+        })
+    } else if (password != confirmpassword) {
+        res.status(200).json({
+            error: true,
+            message: 'Passwords do not match',
+            data: {}
+        })
+    } else {
+        bcrypt.hash(req.body.password, 8, (err, hashedPassword) => {
+            if (err) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Password format is not valid',
+                    data: {}
+                })
+            } else {
+                const JWTSchema = require('./../models/jwt.model');
+                JWTSchema.findOne({
+                    token: token
+                }, function (error, success) {
+                    if (!error && success != null) {
+                        let userId = success.userId;
+                        let role = success.role;
+                        getProfileByProfileId(role, userId)
+                            .then(function (success) {
+                                Users.findOneAndUpdate({
+                                    _id: success.user_id
+                                }, { $set: { password: hashedPassword } }, function (error, success) {
+                                    console.log(error,success)
+                                    if (!error && success != null) {
+                                        res.status(200).json({
+                                            error: false,
+                                            message: 'Password has been reset successfully. ',
+                                            data: {}
+                                        })
+                                    } else {
+                                        res.status(200).json({
+                                            error: true,
+                                            message: 'This email may be invalid. Please make a fresh password reset request.',
+                                            data: {}
+                                        })
+                                    }
+                                })
+                            }, function (error) {
+                                res.status(200).json({
+                                    error: true,
+                                    message: 'This email may be invalid. Please make a fresh password reset request.',
+                                    data: {}
+                                })
+                            })
+                    } else {
+                        res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
+                        // throw new Error("Not Authorized");
+                    }
+                })
+            }
+        })
+    }
+})
+
+function findUserByEmail(email) {
+    return new Promise(function (resolve, reject) {
+        Users.findOne({
+            email: email
+        }, function (error, success) {
+            if (!error && success != null) {
+                resolve(success)
+            } else {
+                reject(error)
+            }
+        })
+    });
+}
 
 module.exports = router;
