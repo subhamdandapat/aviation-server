@@ -79,6 +79,7 @@ const UserRoutes = require('./controllers/users.controller');
 const ImageRoute = require('./controllers/image.controller');
 const ProfileRoute = require('./controllers/profile.controler');
 const SearchRoute = require('./controllers/search.controller');
+const InstaRoute = require('./controllers/instagram.controller');
 
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -101,6 +102,7 @@ app.use('/image', ImageRoute);
 app.use('/users', UserRoutes);
 app.use('/profile', isAuthenticated, ProfileRoute);
 app.use('/search', SearchRoute);
+app.use('/instagram', InstaRoute);
 
 app.get('/hello', (req, res) => res.send('Hello World!'))
 
