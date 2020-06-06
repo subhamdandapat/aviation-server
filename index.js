@@ -51,7 +51,7 @@ function isAuthenticated(req, res, next) {
                         let role = success.role;
                         req.query.profileId = userId;
                         req.query.role = role;
-                        console.log("==========",success)
+                        console.log("==========", success)
                         next();
                     } else {
                         res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
@@ -78,6 +78,7 @@ function isAuthenticated(req, res, next) {
 const UserRoutes = require('./controllers/users.controller');
 const ImageRoute = require('./controllers/image.controller');
 const ProfileRoute = require('./controllers/profile.controler');
+const SearchRoute = require('./controllers/search.controller');
 
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -99,6 +100,8 @@ app.get('/verify', function (req, res) {
 app.use('/image', ImageRoute);
 app.use('/users', UserRoutes);
 app.use('/profile', isAuthenticated, ProfileRoute);
+app.use('/search', SearchRoute);
+
 app.get('/hello', (req, res) => res.send('Hello World!'))
 
 app.listen(port, () => console.log(`PJP Cloud APIs listening at PORT -> ${port}`))
