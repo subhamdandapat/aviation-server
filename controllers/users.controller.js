@@ -148,7 +148,7 @@ router.post('/login', function (req, res) {
                         message: 'Wrong credentials',
                         data: {}
                     })
-                } else if(isMatch) {
+                } else if (isMatch) {
                     let verified = success.verified;
                     if (verified) {
                         let designation = success.designation;
@@ -178,7 +178,7 @@ router.post('/login', function (req, res) {
                             data: {}
                         })
                     }
-                }else{
+                } else {
                     res.status(200).json({
                         error: true,
                         message: 'Wrong credentials',
@@ -279,7 +279,7 @@ router.put('/changepassword', function (req, res) {
                                 Users.findOneAndUpdate({
                                     _id: success.user_id
                                 }, { $set: { password: hashedPassword } }, function (error, success) {
-                                    console.log(error,success)
+                                    console.log(error, success)
                                     if (!error && success != null) {
                                         res.status(200).json({
                                             error: false,
@@ -324,5 +324,34 @@ function findUserByEmail(email) {
         })
     });
 }
+
+router.post('/refreshtoken', function (req, res) {
+    const JWTSchema = require('./../models/jwt.model');
+    let token = req.body.token;
+    let client = {
+        agent: req.header('user-agent'), // User Agent we get from headers
+        referrer: req.header('referrer'), //  Likewise for referrer
+        ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
+    };
+    JWTSchema.findOne({
+        token: token,
+        IPAddress: client.ip,
+        platform: client.agent
+    }, function (error, success) {
+        console.log(success)
+        if (!error && success != null) {
+            jwthelper.generateToken(success.userId, success.role, success.IPAddress, success.platform)
+                .then(function (success) {
+                    res.status(200).json({
+                        error: false,
+                        message: 'Token has been refreshed successfully',
+                        data: success.token
+                    })
+                });
+        } else {
+            res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
+        }
+    })
+})
 
 module.exports = router;

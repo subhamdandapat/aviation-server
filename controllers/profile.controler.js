@@ -4,7 +4,6 @@ const Users = require('./../models/users.model');
 const Pilots = require('./../models/pilot.model');
 const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
-const { update } = require('./../models/users.model');
 
 router.get('/get', function (req, res) {
     let profileId = req.query.profileId;
