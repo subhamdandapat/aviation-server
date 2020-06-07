@@ -6,6 +6,7 @@ const fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 const Users = require('./models/users.model');
+const cors = require('cors')
 
 mongoose.connect('mongodb://127.0.0.1:27017/cloud', {
     useUnifiedTopology: true,
@@ -82,6 +83,7 @@ const SearchRoute = require('./controllers/search.controller');
 const InstaRoute = require('./controllers/instagram.controller');
 const RequirementsRoute = require('./controllers/requirements.controller');
 
+app.use(cors());
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
