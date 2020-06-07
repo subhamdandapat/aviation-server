@@ -27,7 +27,7 @@ router.get('/get', async function (req, res) {
 
     let page = req.query.page ? parseInt(req.query.page) : 1;
     let resPerPage = req.query.perpage ? parseInt(req.query.perpage) : 10;
-    let numOfCrews = await Instagram.count(query);
+    let numOfCrews = await Instagram.countDocuments(query);
     let numOfPages = Math.ceil(numOfCrews / resPerPage);
 
     Instagram.find(query).skip((resPerPage * page) - resPerPage)
@@ -37,7 +37,7 @@ router.get('/get', async function (req, res) {
                     error: false,
                     message: 'Insta Post found',
                     data: success.map(element=>{
-                        return element.replaceOne("amp;","");
+                        return element.replace("amp;","");
                     }),
                     page: page,
                     numOfPages: numOfPages
