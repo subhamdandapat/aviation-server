@@ -37,7 +37,7 @@ router.get('/get', async function (req, res) {
                     error: false,
                     message: 'Insta Post found',
                     data: success.map(element=>{
-                        return element.replace("amp;","");
+                        return element.embedded_html.replace("amp;","");
                     }),
                     page: page,
                     numOfPages: numOfPages
