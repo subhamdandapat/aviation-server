@@ -219,7 +219,7 @@ router.post('/requestpasswordchange', function (req, res) {
                     .then(function (profile) {
                         jwthelper.generateToken(profile._id, user.designation, client.ip, client.agent)
                             .then(function (success) {
-                                let passwordurl = 'http://pjp.brainless.online/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
+                                let passwordurl = 'http://pjp.brainless.online/#/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
                                 EmailHelper.sendEmail(email, 'Password Reset Email', "<p>Dear Mr./Mrs./Ms. " + user.last_name + ", click <a href='" + passwordurl + "'>here </a> to reset password.</p>");
                                 res.status(200).json({
                                     error: false,
