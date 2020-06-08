@@ -29,7 +29,7 @@ router.post('/register', function (req, res) {
                         })
                     }, function (error) {
                         Users.remove({
-                            _id:req.body.user_id
+                            _id: req.body.user_id
                         })
                         res.status(200).json({
                             error: true,
@@ -40,7 +40,7 @@ router.post('/register', function (req, res) {
             } else {
                 res.status(200).json({
                     error: true,
-                    message: error.msg,
+                    message: "Please try with another email or contact PJP Support. This email " + req.body.email + " is curruped",
                     data: error
                 })
             }
