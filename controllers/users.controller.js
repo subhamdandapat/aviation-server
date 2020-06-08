@@ -20,7 +20,7 @@ router.post('/register', function (req, res) {
                 createProfile(req.body)
                     .then(function (success) {
                         let email = req.body.email;
-                        let url = "http://localhost:3000/verify?_id=" + req.body.user_id
+                        let url = "http://13.127.151.54:3000/verify?_id=" + req.body.user_id
                         EmailHelper.sendEmail(email, 'You have been registered successfully', "<p>You have been registered.Click <a href='" + url + "'>here </a> to verify email</p>");
                         res.status(200).json({
                             error: false,
@@ -28,6 +28,9 @@ router.post('/register', function (req, res) {
                             data: success
                         })
                     }, function (error) {
+                        Users.remove({
+                            _id:req.body.user_id
+                        })
                         res.status(200).json({
                             error: true,
                             message: 'Can not create profile',
@@ -216,7 +219,7 @@ router.post('/requestpasswordchange', function (req, res) {
                     .then(function (profile) {
                         jwthelper.generateToken(profile._id, user.designation, client.ip, client.agent)
                             .then(function (success) {
-                                let passwordurl = 'http://localhost:4200/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
+                                let passwordurl = 'https://privatejetpilotpjp.web.app/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
                                 EmailHelper.sendEmail(email, 'Password Reset Email', "<p>Dear Mr./Mrs./Ms. " + user.last_name + ", click <a href='" + passwordurl + "'>here </a> to reset password.</p>");
                                 res.status(200).json({
                                     error: false,
