@@ -40,7 +40,7 @@ router.post('/register', function (req, res) {
             } else {
                 res.status(200).json({
                     error: true,
-                    message: "Please try with another email or contact PJP Support. This email " + req.body.email + " is curruped",
+                    message: "Please try with another email or contact PJP Support. This email " + req.body.email + " is currupted",
                     data: error
                 })
             }
