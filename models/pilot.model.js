@@ -62,4 +62,13 @@ var Pilots = new mongoose.Schema({
     }
 });
 
+Pilots.pre('findOne', function (next) {
+    this.populate('user_id');
+    next();
+});
+Pilots.pre('find', function (next) {
+    this.populate('user_id');
+    next();
+});
+
 module.exports = mongoose.model('Pilots', Pilots);

@@ -44,4 +44,13 @@ var Mechanic = new mongoose.Schema({
     }
 });
 
+Mechanic.pre('findOne', function (next) {
+    this.populate('user_id');
+    next();
+});
+Mechanic.pre('find', function (next) {
+    this.populate('user_id');
+    next();
+});
+
 module.exports = mongoose.model('Mechanic', Mechanic);
