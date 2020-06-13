@@ -1,0 +1,126 @@
+{
+    "roles": [
+        "Pilot",
+        "Flight Attendant",
+        "Mechanic"
+    ],
+    "pilo_license_types": [
+        "ATP",
+        "Commercial",
+        "IFR/Instrument",
+        "Private",
+        "Multi Engine"
+    ],
+    "flight_attendant_license_types": [
+        "Facts Training",
+        "Culinary Training",
+        "Presentation Training",
+        "International Experience"
+    ],
+    "machanics_license_types": [
+        "Airframe",
+        "Powerplant",
+        "Inspector",
+        "ATP",
+        "FCC License",
+        "Avionics Technician",
+        "Engineer",
+        "RepairMan"
+    ],
+    "aircraft_manufacturers": [
+        {
+            "name": "AeroStar",
+            "type_rating": [
+                "600/602",
+                "700 SuperStar"
+            ]
+        },
+        {
+            "name": "Augusta Helicoptar",
+            "type_rating": [
+                "A109",
+                "A300",
+                "A319",
+                "A320",
+                "A330"
+            ]
+        },
+        {
+            "name": "AirBus",
+            "type_rating": [
+                "Basic"
+            ]
+        },
+        {
+            "name": "Astra",
+            "type_rating": [
+                "1125/SP"
+            ]
+        },
+        {
+            "name": "Bae",
+            "type_rating": [
+                "Jetstream 4100"
+            ]
+        },
+        {
+            "name": "Bae",
+            "type_rating": [
+                "1900",
+                "BaronBeech 18",
+                "BeechJet 400",
+                "Bonanza",
+                "Debonair",
+                "Duchess",
+                "Duke",
+                "King Air 300/350",
+                "King Air 90/100/200",
+                "Queen Air",
+                "Travel Air",
+                "Twin Bonanza"
+            ]
+        }
+    ],
+    "pilot_addons": [
+        "Glider",
+        "Rotocraft",
+        "Tail Dragger",
+        "Lighter Than Air",
+        "MNPS Training"
+    ],
+    "flight_attendant_addons": [
+        "Facts Tarining",
+        "Culinary Training",
+        "Presentation Training",
+        "Internation Experience",
+        "Evacuation Training",
+        "CPR"
+    ],
+    "machanics_addons": [
+        "IA",
+        "DAR",
+        "DER",
+        "RII",
+        "Drug Programm"
+    ],
+    "pilot_taining_centers": [
+        "Beyond and Above",
+        "Airline Trained",
+        "Aircare Facts",
+        "Simicom",
+        "SkyBlue Jet Aviation",
+        "Corporate Air Parts",
+        "Flight Safety",
+        "Sky Agnels Sky Acedemy",
+        "VVIP International",
+        "Others"
+    ],
+    "pilot_aviation_activities": [
+        "I am a part 135 PIC",
+        "I am a part 135 SIC",
+        "I am Lead Captain on a part 135 aircraft",
+        "I am a part 91 PIC/SIC",
+        "Part 135 Line Pilot",
+        "CFI Looking to Build Time"
+    ]
+}
