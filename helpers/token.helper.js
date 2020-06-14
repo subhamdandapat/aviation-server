@@ -6,7 +6,7 @@ class TokenHelper {
     generateToken(userId, role, IPAddress, platform) {
         return new Promise(function (resolve, reject) {
             let privateKey = fs.readFileSync('./private.pem', 'utf8');
-            let token = jwt.sign({ "user": "pushpendu.ghosh@mefy.care" }, privateKey, { algorithm: 'HS256', expiresIn: '15m' });
+            let token = jwt.sign({ "user": "pushpendu.ghosh@mefy.care" }, privateKey, { algorithm: 'HS256' });
             let jwtdata = {
                 userId: userId,
                 role: role,

@@ -3,6 +3,7 @@ const router = express.Router();
 const http = require("http");
 const basic = require('./../json/basic.json');
 const countries = require('./../json/countries.json');
+const icao = require('./../json/icao.json')
 
 router.get('/icao',function(req,res){
     let search_String = req.query.search;
@@ -29,7 +30,8 @@ router.get("/info",function(req,res){
         error:false,
         message:'Registration basic informations',
         data:basic,
-        countries:countries
+        countries:countries,
+        icao:icao
     })
 })
 
