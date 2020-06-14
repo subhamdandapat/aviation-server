@@ -50,4 +50,17 @@ router.get('/get', async function (req, res) {
         })
 })
 
+router.get('/delete',function(req,res){
+    let post_id = req.query._id;
+    Instagram.deleteOne({
+        _id:post_id
+    },function(error,success){
+        res.status(200).json({
+            error:false,
+            message:'Post Deleted',
+            data:{}
+        })
+    })
+})
+
 module.exports = router;
