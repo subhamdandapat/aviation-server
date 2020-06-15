@@ -30,8 +30,7 @@ router.get('/get', async function (req, res) {
     let numOfCrews = await Instagram.countDocuments(query);
     let numOfPages = Math.ceil(numOfCrews / resPerPage);
 
-    Instagram.find(query).skip((resPerPage * page) - resPerPage)
-        .limit(resPerPage).sort({ created_at: -1 }).exec(async function (error, success) {
+    Instagram.find(query).sort({ created_at: -1 }).exec(async function (error, success) {
             if (!error && success != null) {
                 res.status(200).json({
                     error: false,
