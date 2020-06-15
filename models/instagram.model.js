@@ -7,7 +7,7 @@ const Instagram = Schema({
     },
     created_at: {
         type: String,
-        date: new Date()
+        default: new Date()
     }
 })
 
