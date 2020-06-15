@@ -5,7 +5,7 @@ const Instagram = Schema({
     embedded_html: {
         type: String
     },
-    createdDate: {
+    created_at: {
         type: Date,
         default: Date.now
     },
