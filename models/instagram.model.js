@@ -5,10 +5,10 @@ const Instagram = Schema({
     embedded_html: {
         type: String
     },
-    created_at: {
-        type: String,
-        default: new Date()
-    }
+    createdDate: {
+        type: Date,
+        default: Date.now
+    },
 })
 
 module.exports = mongoose.model('Instagram', Instagram);
