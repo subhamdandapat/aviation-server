@@ -31,7 +31,7 @@ router.get('/get', async function (req, res) {
     let numOfPages = Math.ceil(numOfCrews / resPerPage);
 
     Instagram.find(query).skip((resPerPage * page) - resPerPage)
-        .limit(resPerPage).exec(async function (error, success) {
+        .limit(resPerPage).sort({ created_at: -1 }).exec(async function (error, success) {
             if (!error && success != null) {
                 res.status(200).json({
                     error: false,
@@ -50,15 +50,15 @@ router.get('/get', async function (req, res) {
         })
 })
 
-router.get('/delete',function(req,res){
+router.get('/delete', function (req, res) {
     let post_id = req.query._id;
     Instagram.deleteOne({
-        _id:post_id
-    },function(error,success){
+        _id: post_id
+    }, function (error, success) {
         res.status(200).json({
-            error:false,
-            message:'Post Deleted',
-            data:{}
+            error: false,
+            message: 'Post Deleted',
+            data: {}
         })
     })
 })
