@@ -25,6 +25,7 @@ router.get('/get', function (req, res) {
 })
 
 function getProfile(role, user_id) {
+    console.log(role, user_id)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -41,6 +42,8 @@ function getProfile(role, user_id) {
                 reject({})
                 break;
         }
+
+        console.log(Collection)
 
         Collection.findOne({
             _id: user_id
@@ -123,5 +126,25 @@ router.put('/update', function (req, res) {
             })
         });
 })
+
+router.get('/profileget', function (req, res) {
+    let profileId = req.query.profile_id;
+    let role = req.query.profile_role;
+    console.log(role, profileId)
+    getProfile(role, profileId)
+        .then(function (profile) {
+            res.status(200).json({
+                error: true,
+                message: 'Got user',
+                data: profile
+            })
+        }, function (error) {
+            res.status(200).json({
+                error: true,
+                message: 'No profile found',
+                data: error
+            })
+        });
+});
 
 module.exports = router;

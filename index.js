@@ -41,7 +41,7 @@ function isAuthenticated(req, res, next) {
                 console.log(err)
                 // shut them out!
                 res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
-                throw new Error("Not Authorized");
+                // throw new Error("Not Authorized");
             } else {
                 JWTSchema.findOne({
                     token: token
@@ -56,7 +56,7 @@ function isAuthenticated(req, res, next) {
                         next();
                     } else {
                         res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
-                        throw new Error("Not Authorized");
+                        // throw new Error("Not Authorized");
                     }
                 })
             }
@@ -72,7 +72,7 @@ function isAuthenticated(req, res, next) {
         // No authorization header exists on the incoming
         // request, return not authorized and throw a new error 
         res.status(200).json({ error: true, message: 'Unauthorized', data: {} });
-        throw new Error("Not Authorized");
+        // throw new Error("Not Authorized");
     }
 }
 
