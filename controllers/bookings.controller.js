@@ -8,7 +8,7 @@ router.post("/create",async function (req, res) {
     let designation = req.query.role;
 
     req.body.bookieid = profileId;
-    req.body.status = "pending";
+    req.body.event_status = "pending";
     let count = await checkCalenderOverlap(req.body.profileId, req.body.enent_start_date, req.body.event_end_date)
     if (count == 1) {
         res.status(200).json({
@@ -105,7 +105,7 @@ router.post("/accept", function (req, res) {
                     data: {}
                 })
             } else {
-                success.status = "confirmed"
+                success.event_status = "confirmed"
                 success.save(function (error, success) {
                     if (!error && success != null) {
                         res.status(200).json({
@@ -136,7 +136,7 @@ router.post("/reject", function (req, res) {
     let bookingsId = req.query.bookingsId;
     bookings.findOneAndUpdate({
         _id: bookingsId
-    }, { $set: { status: "cancelled" } }, function (error, success) {
+    }, { $set: { event_status: "cancelled" } }, function (error, success) {
         if (!error && success != null) {
             res.status(200).json({
                 error: false,
