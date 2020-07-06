@@ -110,7 +110,7 @@ app.use('/search', SearchRoute);
 app.use('/instagram', InstaRoute);
 app.use('/requirements', isAuthenticated, RequirementsRoute);
 app.use('/basic', basicRoutes);
-app.use('/bookings', bookingsRoute);
+app.use('/bookings',isAuthenticated, bookingsRoute);
 
 app.get('/hello', (req, res) => res.send('Hello World!'))
 
