@@ -5,7 +5,7 @@ const bookings = new Schema({
     userid: {
         type: Schema.ObjectId,
         required: true,
-        ref: "User"
+        ref: "Users"
     },
     bookieid: {
         type: Schema.ObjectId,
