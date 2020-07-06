@@ -41,7 +41,7 @@ router.get("/requests", function (req, res) {
 
     let user_id = profileId;
     let query = {
-        user_id: user_id
+        userid: user_id
     }
 
     // paginations are left to be done
