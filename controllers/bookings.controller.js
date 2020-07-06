@@ -7,113 +7,86 @@ router.post("/create", function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
 
-    getProfile(designation, profileId)
-        .then(async function (profile) {
-            req.body.bookieid = profile.user_id;
-            req.body.status = "pending";
-            let count = await checkCalenderOverlap(req.body.userid, req.body.enent_start_date, req.body.event_end_date)
-            if (count == 1) {
-                res.status(200).json({
-                    error: true,
-                    message: "User is not available in the time frame",
-                    data: {}
-                })
-            }
-            let bookings_collection = new bookings(req.body);
-            bookings_collection.save(function (error, success) {
-                if (!error && success != null) {
-                    res.status(200).json({
-                        error: false,
-                        message: "Booking has been requested",
-                        data: success
-                    })
-                } else {
-                    res.status(200).json({
-                        error: true,
-                        message: error.message,
-                        data: error
-                    })
-                }
+    req.body.bookieid = profileId;
+    req.body.status = "pending";
+    let count = await checkCalenderOverlap(req.body.profileId, req.body.enent_start_date, req.body.event_end_date)
+    if (count == 1) {
+        res.status(200).json({
+            error: true,
+            message: "User is not available in the time frame",
+            data: {}
+        })
+    }
+    let bookings_collection = new bookings(req.body);
+    bookings_collection.save(function (error, success) {
+        if (!error && success != null) {
+            res.status(200).json({
+                error: false,
+                message: "Booking has been requested",
+                data: success
             })
-        }, function (error) {
+        } else {
             res.status(200).json({
                 error: true,
-                message: 'No profile found',
+                message: error.message,
                 data: error
             })
-        });
+        }
+    })
 })
 
 router.get("/requests", function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
 
-    getProfile(designation, profileId)
-        .then(function (profile) {
-            let user_id = profile.user_id;
-            let query = {
-                user_id: user_id
-            }
+    let user_id = profileId;
+    let query = {
+        user_id: user_id
+    }
 
-            // paginations are left to be done
-            bookings.find(query).exec(function (error, success) {
-                if (!error && success != null) {
-                    res.status(200).json({
-                        error: false,
-                        message: "Got bookings requests",
-                        data: success
-                    })
-                } else {
-                    res.status(200).json({
-                        error: true,
-                        message: error.message,
-                        data: error
-                    })
-                }
+    // paginations are left to be done
+    bookings.find(query).exec(function (error, success) {
+        if (!error && success != null) {
+            res.status(200).json({
+                error: false,
+                message: "Got bookings requests",
+                data: success
             })
-        }, function (error) {
+        } else {
             res.status(200).json({
                 error: true,
-                message: 'No profile found',
+                message: error.message,
                 data: error
             })
-        });
+        }
+    })
 })
 
 router.get("/myrequests", function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
 
-    getProfile(designation, profileId)
-        .then(function (profile) {
-            let user_id = profile.user_id;
-            let query = {
-                bookieid: user_id
-            }
+    let user_id = profileId;
+    let query = {
+        bookieid: user_id
+    }
 
-            // paginations are left to be done
-            bookings.find(query).exec(function (error, success) {
-                if (!error && success != null) {
-                    res.status(200).json({
-                        error: false,
-                        message: "Got bookings requests",
-                        data: success
-                    })
-                } else {
-                    res.status(200).json({
-                        error: true,
-                        message: error.message,
-                        data: error
-                    })
-                }
+    // paginations are left to be done
+    bookings.find(query).exec(function (error, success) {
+        if (!error && success != null) {
+            res.status(200).json({
+                error: false,
+                message: "Got bookings requests",
+                data: success
             })
-        }, function (error) {
+        } else {
             res.status(200).json({
                 error: true,
-                message: 'No profile found',
+                message: error.message,
                 data: error
             })
-        });
+        }
+    })
 })
 
 router.post("/accept", function (req, res) {
