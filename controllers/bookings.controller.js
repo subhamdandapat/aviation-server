@@ -3,7 +3,7 @@ const router = express.Router();
 const bookings = require("./../models/bookings.model");
 const { accessSync } = require("fs");
 
-router.post("/create",await function (req, res) {
+router.post("/create",async function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
 
