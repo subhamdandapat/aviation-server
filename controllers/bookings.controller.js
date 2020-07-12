@@ -9,14 +9,14 @@ router.post("/create",async function (req, res) {
 
     req.body.bookieid = profileId;
     req.body.event_status = "pending";
-    // let count = await checkCalenderOverlap(req.body.profileId, req.body.enent_start_date, req.body.event_end_date)
-    // if (count == 1) {
-    //     res.status(200).json({
-    //         error: true,
-    //         message: "User is not available in the time frame",
-    //         data: {}
-    //     })
-    // }
+    let count = await checkCalenderOverlap(req.body.profileId, req.body.enent_start_date, req.body.event_end_date)
+    if (count == 1) {
+        res.status(200).json({
+            error: true,
+            message: "User is not available in the time frame",
+            data: {}
+        })
+    }
     let bookings_collection = new bookings(req.body);
     bookings_collection.save(function (error, success) {
         if (!error && success != null) {
