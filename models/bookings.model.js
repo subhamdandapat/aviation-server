@@ -38,5 +38,20 @@ const bookings = new Schema({
         required: true
     }
 })
-
+bookings.pre('findOne', function (next) {
+    this.populate('userid');
+    next();
+});
+bookings.pre('find', function (next) {
+    this.populate('userid');
+    next();
+});
+bookings.pre('findOne', function (next) {
+    this.populate('bookieid');
+    next();
+});
+bookings.pre('find', function (next) {
+    this.populate('bookieid');
+    next();
+});
 module.exports = mongoose.model("bookings", bookings)
