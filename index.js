@@ -12,7 +12,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/cloud', {
 	useUnifiedTopology: true,
 	useNewUrlParser: true,
 	useCreateIndex: true
-});
+})
+.then(() => console.log( 'Database Connected' ))
+.catch(err => console.log( 'error',err ));
+
 mongoose.connection.on('connected', () => {
 	console.log("Database connected");
 });
@@ -90,11 +93,15 @@ app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.get('/verify', function (req, res) {
+	console.log('id...',req.query._id)
 	let user_id = req.query._id;
 	// res.send('User not Verified!')
 	Users.findOneAndUpdate({
 		_id: user_id
 	}, { $set: { verified: true } }, function (error, success) {
+		console.log('error',error)
+		console.log('success',success)
+
 		if (!error && success != null) {
 			res.send('User Verified!')
 		} else {
