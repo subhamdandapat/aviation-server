@@ -6,6 +6,7 @@ const fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 const Users = require('./models/users.model');
+
 const cors = require('cors')
 
 mongoose.connect('mongodb://127.0.0.1:27017/cloud', {
@@ -87,7 +88,7 @@ const InstaRoute = require('./controllers/instagram.controller');
 const RequirementsRoute = require('./controllers/requirements.controller');
 const basicRoutes = require("./controllers/basic.controller");
 const bookingsRoute = require("./controllers/bookings.controller");
-
+const socialRoute=require('./controllers/social.controller')
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -118,7 +119,7 @@ app.use('/instagram', InstaRoute);
 app.use('/requirements', isAuthenticated, RequirementsRoute);
 app.use('/basic', basicRoutes);
 app.use('/bookings',isAuthenticated, bookingsRoute);
-
+app.use('/social',isAuthenticated,socialRoute)
 app.get('/hello', (req, res) => res.send('Hello World!'))
 
 app.listen(port, () => console.log(`PJP Cloud APIs listening at PORT -> ${port}`))

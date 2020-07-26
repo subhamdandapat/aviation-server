@@ -4,6 +4,7 @@ const Users = require('./../models/users.model');
 const Pilots = require('./../models/pilot.model');
 const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
+const Social = require('./../models/social.model');
 
 router.get('/get', function (req, res) {
     let profileId = req.query.profileId;
@@ -11,7 +12,7 @@ router.get('/get', function (req, res) {
     getProfile(designation, profileId)
         .then(function (profile) {
             res.status(200).json({
-                error: true,
+                error: false,
                 message: 'Got user',
                 data: profile
             })
@@ -23,6 +24,7 @@ router.get('/get', function (req, res) {
             })
         });
 })
+
 
 function getProfile(role, user_id) {
     console.log(role, user_id)

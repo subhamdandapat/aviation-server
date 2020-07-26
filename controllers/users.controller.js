@@ -4,16 +4,16 @@ const Users = require('./../models/users.model');
 const Pilots = require('./../models/pilot.model');
 const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
+const Social = require('./../models/social.model');
 const helper = require('./../helpers/email.helper');
 const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
-
+const moment = require('moment')
 router.post('/register', function (req, res) {
     bcrypt.hash(req.body.password, 8, (err, hashedPassword) => {
         req.body.password = hashedPassword;
         let user_document = new Users(req.body);
-        console.log(req.body.password)
         user_document.save(function (error, success) {
             if (!error && success != null) {
                 req.body.user_id = success._id;
@@ -90,7 +90,7 @@ function getProfile(role, user_id) {
         Collection.findOne({
             user_id: user_id
         }, function (error, success) {
-            console.log(error, success)
+           
             if (!error && success != null) {
                 resolve(success)
             } else {
@@ -158,6 +158,7 @@ router.post('/login', function (req, res) {
                         let user_id = success._id;
                         getProfile(designation, user_id)
                             .then(function (profile) {
+                             
                                 // with JWT
                                 jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
                                     .then(function (success) {
@@ -217,6 +218,7 @@ router.post('/requestpasswordchange', function (req, res) {
             .then(function (user) {
                 getProfile(user.designation, user._id)
                     .then(function (profile) {
+
                         jwthelper.generateToken(profile._id, user.designation, client.ip, client.agent)
                             .then(function (success) {
                                 let passwordurl = 'http://pjp.brainless.online/#/password/reset?webtoken=' + success.token + '&agent=' + client.agent + '&ip=' + client.ip
@@ -248,7 +250,7 @@ router.put('/changepassword', function (req, res) {
     let password = req.body.password;
     let confirmpassword = req.body.confirmpassword;
     let token = req.body.token;
-    console.log(password, confirmpassword)
+  
     if (!password || !confirmpassword) {
         res.status(200).json({
             error: true,
@@ -282,7 +284,7 @@ router.put('/changepassword', function (req, res) {
                                 Users.findOneAndUpdate({
                                     _id: success.user_id
                                 }, { $set: { password: hashedPassword } }, function (error, success) {
-                                    console.log(error, success)
+                                 
                                     if (!error && success != null) {
                                         res.status(200).json({
                                             error: false,
@@ -341,7 +343,7 @@ router.post('/refreshtoken', function (req, res) {
         IPAddress: client.ip,
         platform: client.agent
     }, function (error, success) {
-        console.log(success)
+     
         if (!error && success != null) {
             jwthelper.generateToken(success.userId, success.role, success.IPAddress, success.platform)
                 .then(function (success) {
@@ -357,4 +359,118 @@ router.post('/refreshtoken', function (req, res) {
     })
 })
 
+
+router.post('/sociallogin', function (req, res) {
+ 
+    let email = req.body.email;
+    let password = req.body.password;
+    let client = {
+        agent: req.header('user-agent'), // User Agent we get from headers
+        referrer: req.header('referrer'), //  Likewise for referrer
+        ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
+    };
+    Users.findOne({
+        email: email,
+    }, function (error, success) {
+        if (!error && success != null) {
+            let hashedPassword = success.password;
+            bcrypt.compare(password, hashedPassword, (err, isMatch) => {
+                if (err) {
+                    res.status(200).json({
+                        error: true,
+                        message: 'Wrong credentials',
+                        data: {}
+                    })
+                } else if (isMatch) {
+                    let verified = success.verified;
+                    if (verified) {
+                        let designation = success.designation;
+                        let user_id = success._id;
+                        getProfile(designation, user_id)
+                            .then(function (profile) {
+                             
+                                //check whether user is present on social or not
+                                Social.findOne({ user_id: user_id }, function (error, success) {
+                                    
+                                    if (error) {
+                                        res.status(200).json({
+                                            error: true,
+                                            message: 'Wrong Credentials',
+                                            data: error
+                                        })
+                                    } else if (success != null) {
+                                        // login   
+                                        // with JWT
+                                        jwthelper.generateToken(success._id, designation, client.ip, client.agent)                //id of social to generate token
+                                            .then(function (success) {
+                                                res.status(200).json({
+                                                    error: false,
+                                                    message: 'User logged in successfully',
+                                                    data: success.token
+                                                })
+                                            });
+                                    } else if (success == null) {
+                                        //store userid and joining date then login
+
+                                        let data = {
+                                            user_id: user_id,
+                                            joined_date: moment()
+                                        }
+                                        let social_profile = new Social(data)
+                                        social_profile.save(function (error, success) {
+                                            if (error) {
+                                                res.status(200).json({
+                                                    error: true,
+                                                    message: 'Wrong Credentials',
+                                                    data: error
+                                                })
+                                            } else {
+                                                //login
+                                                // with JWT
+                                                jwthelper.generateToken(success._id,designation, client.ip, client.agent)           //id of social to generate token
+                                                    .then(function (success) {
+                                                        res.status(200).json({
+                                                            error: false,
+                                                            message: 'User logged in successfully',
+                                                            data: success.token
+                                                        })
+                                                    });
+                                            }
+
+                                        })
+                                    }
+
+                                })
+
+                            }, function (error) {
+                                res.status(200).json({
+                                    error: true,
+                                    message: 'Wrong Credentials',
+                                    data: error
+                                })
+                            });
+                    } else {
+                        res.status(200).json({
+                            error: true,
+                            message: 'Please verify your email id',
+                            data: {}
+                        })
+                    }
+                } else {
+                    res.status(200).json({
+                        error: true,
+                        message: 'Wrong credentials',
+                        data: {}
+                    })
+                }
+            });
+        } else {
+            res.status(200).json({
+                error: true,
+                message: 'Wrong credentials',
+                data: {}
+            })
+        }
+    })
+})
 module.exports = router;
