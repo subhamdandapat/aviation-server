@@ -6,6 +6,7 @@ const fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 const Users = require('./models/users.model');
+const Social = require('./models/social.model');
 
 const cors = require('cors')
 
@@ -90,6 +91,8 @@ const RequirementsRoute = require('./controllers/requirements.controller');
 const basicRoutes = require("./controllers/basic.controller");
 const bookingsRoute = require("./controllers/bookings.controller");
 const socialRoute=require('./controllers/social.controller')
+const moment=require('moment');
+
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -105,10 +108,23 @@ app.get('/verify', function (req, res) {
 		console.log('success',success)
 
 		if (!error && success != null) {
-			res.send('User Verified!')
+			let data = {
+				user_id: user_id,
+				joined_date: moment()
+			}
+			let social_profile = new Social(data)
+			social_profile.save(function (error, success) {
+				if (error) {
+					res.send('Error Occurred !')
+				}
+				else {
+					res.send('User Verified!')
+				}
+			})
+			
 		} else {
 			res.send('User not Verified!')
-		}
+		} 
 	})
 })
 
