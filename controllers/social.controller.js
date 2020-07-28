@@ -75,29 +75,40 @@ function getProfile(role, user_id) {
 }
 
 
-router.put('/background_image',function(req,res){
+router.put('/update',function(req,res){
 // background image,webtoken()
-let background_image=req.body.image;
+// let background_image=req.body.image;
+// let about_me=req.body.about_me;
 let socialId = req.query.profileId;
 console.log(req.query)
-Social.findByIdAndUpdate({_id:socialId},{"$set": {"background_image":background_image}},{returnNewDocument: true },
+let update={};
+if(req.body.image){
+    update={"background_image":req.body.image}
+}
+if(req.body.about_me){
+    update={"about_me":req.body.about_me}
+}
+Social.findByIdAndUpdate({_id:socialId},{"$set": update},{returnNewDocument: true },
     function(error,success){
+        console.log('*****',error,success)
     if(error){
         res.status(200).json({
             error: true,
-            message: 'No profile found',
+            message: 'No profile found.',
             data: error
         })
     }
     else{
         res.status(200).json({
             error: false,
-            message: 'Background image uploaded',
+            message: req.body.image?'Background image uploaded.':'Profile updated.',
             data: success
         })
     }
 })
 })
+
+
 
 
 
