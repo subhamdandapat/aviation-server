@@ -5,10 +5,6 @@ var Social = new mongoose.Schema({
         type: String,
         ref: 'Users'
     },
-    profileId:{
-        type:String
-    },
-    db_collection:{type:String},
     background_image: {
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
@@ -17,7 +13,7 @@ var Social = new mongoose.Schema({
         {
             type: String
          },
-    about_me:
+    about_me:  
         { 
             type: String 
         },

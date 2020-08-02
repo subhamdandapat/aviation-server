@@ -158,57 +158,14 @@ router.post('/login', function (req, res) {
                         let user_id = success._id;
                         getProfile(designation, user_id)
                             .then(function (profile) {
-                                Social.findOne({ user_id: profile.user_id._id }, function (error, socialdata) {
-                                    console.log('1', error, socialdata);
-                                    if (error || socialdata==null) {
-                                        res.status(200).json({
-                                            error: true,
-                                            message: 'No Social profile found',
-                                            data: error
-                                        })
-                                    }
-                                    else if (socialdata) {
-                                        if (socialdata.profileId) {
-                                            //leave it just login
-                                            console.log('login')
-                                            // with JWT
-                                            jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
-                                                .then(function (success) {
-                                                    res.status(200).json({
-                                                        error: false,
-                                                        message: 'User logged in successfully',
-                                                        data: success.token
-                                                    })
-                                                });
-                                        } else {
-                                            // store profile id and login
-                                            Social.findOneAndUpdate({ user_id: profile.user_id._id }, { $set: { profileId: profile._id, db_collection: designation } }, function (error, socialresult) {
-                                                console.log('lllll', error, socialresult)
-
-                                                if (error) {
-                                                    res.status(200).json({
-                                                        error: true,
-                                                        message: 'Error',
-                                                        data: error
-                                                    })
-                                                } else if (socialresult) {
-                                                    // with JWT
-                                                    jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
-                                                        .then(function (success) {
-                                                            res.status(200).json({
-                                                                error: false,
-                                                                message: 'User logged in successfully',
-                                                                data: success.token
-                                                            })
-                                                        });
-
-                                                }
-                                            })
-                                        }
-                                    }
-                                })
-                                //                             
-
+                                jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
+                                .then(function (success) {
+                                    res.status(200).json({
+                                        error: false,
+                                        message: 'User logged in successfully',
+                                        data: success.token
+                                    })
+                                });
                             }, function (error) {
                                 res.status(200).json({
                                     error: true,
