@@ -90,7 +90,7 @@ function getProfile(role, user_id) {
         Collection.findOne({
             user_id: user_id
         }, function (error, success) {
-           
+
             if (!error && success != null) {
                 resolve(success)
             } else {
@@ -158,16 +158,57 @@ router.post('/login', function (req, res) {
                         let user_id = success._id;
                         getProfile(designation, user_id)
                             .then(function (profile) {
-                             
-                                // with JWT
-                                jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
-                                    .then(function (success) {
+                                Social.findOne({ user_id: profile.user_id._id }, function (error, socialdata) {
+                                    console.log('1', error, socialdata);
+                                    if (error || socialdata==null) {
                                         res.status(200).json({
-                                            error: false,
-                                            message: 'User logged in successfully',
-                                            data: success.token
+                                            error: true,
+                                            message: 'No Social profile found',
+                                            data: error
                                         })
-                                    });
+                                    }
+                                    else if (socialdata) {
+                                        if (socialdata.profileId) {
+                                            //leave it just login
+                                            console.log('login')
+                                            // with JWT
+                                            jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
+                                                .then(function (success) {
+                                                    res.status(200).json({
+                                                        error: false,
+                                                        message: 'User logged in successfully',
+                                                        data: success.token
+                                                    })
+                                                });
+                                        } else {
+                                            // store profile id and login
+                                            Social.findOneAndUpdate({ user_id: profile.user_id._id }, { $set: { profileId: profile._id, db_collection: designation } }, function (error, socialresult) {
+                                                console.log('lllll', error, socialresult)
+
+                                                if (error) {
+                                                    res.status(200).json({
+                                                        error: true,
+                                                        message: 'Error',
+                                                        data: error
+                                                    })
+                                                } else if (socialresult) {
+                                                    // with JWT
+                                                    jwthelper.generateToken(profile._id, success.designation, client.ip, client.agent)
+                                                        .then(function (success) {
+                                                            res.status(200).json({
+                                                                error: false,
+                                                                message: 'User logged in successfully',
+                                                                data: success.token
+                                                            })
+                                                        });
+
+                                                }
+                                            })
+                                        }
+                                    }
+                                })
+                                //                             
+
                             }, function (error) {
                                 res.status(200).json({
                                     error: true,
@@ -250,7 +291,7 @@ router.put('/changepassword', function (req, res) {
     let password = req.body.password;
     let confirmpassword = req.body.confirmpassword;
     let token = req.body.token;
-  
+
     if (!password || !confirmpassword) {
         res.status(200).json({
             error: true,
@@ -284,7 +325,7 @@ router.put('/changepassword', function (req, res) {
                                 Users.findOneAndUpdate({
                                     _id: success.user_id
                                 }, { $set: { password: hashedPassword } }, function (error, success) {
-                                 
+
                                     if (!error && success != null) {
                                         res.status(200).json({
                                             error: false,
@@ -343,7 +384,7 @@ router.post('/refreshtoken', function (req, res) {
         IPAddress: client.ip,
         platform: client.agent
     }, function (error, success) {
-     
+
         if (!error && success != null) {
             jwthelper.generateToken(success.userId, success.role, success.IPAddress, success.platform)
                 .then(function (success) {
@@ -361,7 +402,7 @@ router.post('/refreshtoken', function (req, res) {
 
 
 router.post('/sociallogin', function (req, res) {
- 
+
     let email = req.body.email;
     let password = req.body.password;
     let client = {
@@ -388,10 +429,10 @@ router.post('/sociallogin', function (req, res) {
                         let user_id = success._id;
                         getProfile(designation, user_id)
                             .then(function (profile) {
-                             
+
                                 //check whether user is present on social or not
                                 Social.findOne({ user_id: user_id }, function (error, success) {
-                                    
+
                                     if (error) {
                                         res.status(200).json({
                                             error: true,
@@ -427,7 +468,7 @@ router.post('/sociallogin', function (req, res) {
                                             } else {
                                                 //login
                                                 // with JWT
-                                                jwthelper.generateToken(success._id,designation, client.ip, client.agent)           //id of social to generate token
+                                                jwthelper.generateToken(success._id, designation, client.ip, client.agent)           //id of social to generate token
                                                     .then(function (success) {
                                                         res.status(200).json({
                                                             error: false,
