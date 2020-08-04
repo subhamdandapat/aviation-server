@@ -34,10 +34,11 @@ router.post('/new', function (req, res) {
             console.log('success', success)
             let data = {
                 profileId: profileId,
-                text: req.body.text,
+                text: req.body.text?req.body.text:'',
                 user_id: success.user_id._id,
                 socialId: success._id,
-                db_collection: db_collection
+                db_collection: db_collection,
+                image:req.body.image?req.body.image:[]
             }
             requestdata = new Post(data);
             requestdata.save(function (error, newpost) {
@@ -49,6 +50,7 @@ router.post('/new', function (req, res) {
                         data: error
                     })
                 } else if (newpost) {
+                    newpost.user_id=success.user_id
                     res.status(200).json({
                         error: false,
                         message: 'Post created Successfully',

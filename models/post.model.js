@@ -13,12 +13,12 @@ var Post = new mongoose.Schema({
     },
     socialId: {
         type: String,
-        ref: 'Users'
+        ref: 'Social'
     },
-    image: {
+    image: [{
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
-    },
+    }],
     video: {
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
@@ -32,8 +32,13 @@ var Post = new mongoose.Schema({
     }],
     comments: [{
         type: String
-    }]
+    }],
+    createdDate: {
+        type: Date,
+        default: Date.now
+    }
 });
+
 
 Post.pre('findOne', function (next) {
     this.populate('user_id');
@@ -43,5 +48,4 @@ Post.pre('find', function (next) {
     this.populate('user_id');
     next();
 });
-
 module.exports = mongoose.model('Post', Post); 
