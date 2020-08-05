@@ -11,6 +11,7 @@ const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
 const moment = require('moment')
 router.post('/register', function (req, res) {
+    console.log('req',req)
     bcrypt.hash(req.body.password, 8, (err, hashedPassword) => {
         req.body.password = hashedPassword;
         let user_document = new Users(req.body);
@@ -60,6 +61,7 @@ function createProfile(profile) {
             profile_document = new Mechanic(profile)
         }
         profile_document.save(function (error, success) {
+            console.log('error',error,success)
             if (!error && success != null) {
                 resolve(success)
             } else {
