@@ -19,10 +19,10 @@ var Post = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
     }],
-    video: {
+    video:[ {
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
-    },
+    }],
     text:
     {
         type: String

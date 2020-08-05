@@ -38,7 +38,8 @@ router.post('/new', function (req, res) {
                 user_id: success.user_id._id,
                 socialId: success._id,
                 db_collection: db_collection,
-                image:req.body.image?req.body.image:[]
+                image:req.body.image?req.body.image:[],
+                video:req.body.video?req.body.video:[]
             }
             requestdata = new Post(data);
             requestdata.save(function (error, newpost) {
