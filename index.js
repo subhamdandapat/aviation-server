@@ -103,9 +103,6 @@ app.get('/verify', function (req, res) {
 	console.log('id...',req.query._id)
 	let user_id = req.query._id;
 	// res.send('User not Verified!')
-	Users.find({},function(error,success){
-		console.log(';;;;;;;;',error,success)
-	})
 	Users.findOneAndUpdate({
 		_id: user_id
 	}, { $set: { verified: true } }, function (error, success) {
