@@ -9,7 +9,8 @@ const helper = require('./../helpers/email.helper');
 const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
-const moment = require('moment')
+const moment = require('moment');
+
 router.post('/register', function (req, res) {
     console.log('req',req)
     bcrypt.hash(req.body.password, 8, (err, hashedPassword) => {
