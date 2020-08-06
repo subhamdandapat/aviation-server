@@ -111,9 +111,8 @@ function getProfile(role, profileid) {
     });
 }
 
-router.get('/get',function(req, res){
-
- Post.find({},function(error,success){
+router.get('/all',function(req, res){
+ Post.find({}).sort({ createdDate: -1 }).exec(function (error, success) {
      if(error){
         res.status(200).json({
             error: true,
@@ -130,5 +129,26 @@ router.get('/get',function(req, res){
      }
  })   
 })
+
+router.get('/profile',function(req, res){
+    let profileId=req.query.profileId
+    Post.find({profileId:profileId}).sort({ createdDate: -1 }).exec(function (error, success) {
+        if(error){
+           res.status(200).json({
+               error: true,
+               message: 'Error',
+               data: error
+           })
+        }
+        else{
+           res.status(200).json({
+               error: false,
+               message: 'User Post  List ',
+               data: success
+           })
+        }
+    })   
+   })
+
 
 module.exports = router;
