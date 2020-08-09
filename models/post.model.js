@@ -28,8 +28,15 @@ var Post = new mongoose.Schema({
         type: String
     },
     likes: [{
-        type: String
+        profileId:{
+            type:String
+        },
+        designation:{
+            type:String
+        }
+
     }],
+   
     comments: [{
         type: String
     }],

@@ -11,7 +11,7 @@ const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
 const moment = require('moment');
-const { post } = require('./users.controller');
+// const { post } = require('./users.controller');
 
 
 router.post('/new', function (req, res) {
@@ -196,5 +196,66 @@ async function getImage(profile) {
     })
 }
 
+router.put('/like', function (req, res) {    //postid from req body
+    let profileId = req.query.profileId;
+    let designation = req.query.role;
+    let postId = req.body.postId;
+    like = {
+        profileId: profileId,
+        designation: designation
+    }
+    Post.findById({ _id: postId }, function (error, postdetail) {
+        if (error) {
+            res.status(200).json({
+                error: true,
+                message: 'Post not found.',
+                data: error
+            })
+        }
+        else {
+            let exists = false;
+            let newArray=postdetail.likes;
+            if(postdetail.likes.length>0)
+            postdetail.likes.forEach(el => {
+                if (el.profileId != profileId && el.designation != designation) {
+                    newArray.push(like)
+                }
+            })
+            else
+            newArray.push(like)
+            // if (exists == true) {
+            //     //alreasy liked
+            //     res.status(200).json({
+            //         error: false,
+            //         message: 'Post Already Liked.',
+
+            //     })
+            // }
+            // else {
+            //     //save 
+            //     postdetail.likes.push(like);
+
+                postdetail.save(function (error, success) {
+
+                    if (error) {
+                        res.status(200).json({
+                            error: true,
+                            message: 'Error Occurred ',
+                            data: error
+                        })
+                    }
+                    else {
+                        res.status(200).json({
+                            error: false,
+                            message: 'Post  Liked Successfully',
+                            data: success
+                        })
+                    }
+                })
+            // }
+        }
+    })
+
+})
 
 module.exports = router;
