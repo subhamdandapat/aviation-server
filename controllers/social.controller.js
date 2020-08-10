@@ -7,8 +7,6 @@ const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
 const Post = require('./../models/post.model');
 
-
-
 router.get('/profile', function (req, res) {
     console.log('ikugy', req.query.profileId, req.query.role)
     let profileId = req.query.profileId;
@@ -187,7 +185,6 @@ async function background_image(user_id) {
     })
 }
 
-
 async function post_images(profileId) {
     return new Promise(function (resolve, reject) {
         Post.find({
@@ -228,10 +225,72 @@ async function post_images(profileId) {
 }
 
 
+// post,profile,photos, get from profileid
+router.get('/social_profile', function (req, res) {
+    let profileId = req.query.profileId;
+    let designation = req.query.role;
+    getProfile(designation, profileId)
+        .then(function (profile) {
+            getUsersWholeProfile(profile).then(function (data) {
+                console.log('data', data)
+                let picsdata = [];
+                if (profile.profile_picture)
+                    picsdata.push(profile.profile_picture);
+                if (data[0] != '')
+                    picsdata.push(data[0]);
+
+                res.status(200).json({
+                    error: false,
+                    message: 'All Pics',
+                    basic_profile: profile,
+                    social_profile: data[3],
+                    posts: data[2],
+                    pics: data[1].images.length > 0 ? picsdata.concat(data[1].images) : picsdata,
+                    videos: data[1].videos
+                })
+
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
+            })
+        })
+
+})
+
+async function getUsersWholeProfile(profile) {
+    let x;
+    await Promise.all([background_image(profile.user_id._id), post_images(profile._id), user_posts(profile._id), social_profile(profile.user_id._id)]).then(function (values) {
+
+        x = values
+    })
+    return x;
+}
 
 
+async function user_posts(profileId) {
+    return new Promise(function (resolve, reject) {
+        Post.find({ profileId: profileId }, function (error, success) {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(success)
+            }
+        })
+    })
+}
 
-
-
-
+async function social_profile(userId) {
+    return new Promise(function (resolve, reject) {
+        Social.findOne({ user_id: userId }, function (error, success) {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(success)
+            }
+        })
+    })
+}
 module.exports = router;
