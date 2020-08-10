@@ -92,6 +92,7 @@ const basicRoutes = require("./controllers/basic.controller");
 const bookingsRoute = require("./controllers/bookings.controller");
 const socialRoute=require('./controllers/social.controller')
 const postRoute=require('./controllers/post.controller')
+const commentRoute=require('./controllers/comment.controller')
 
 const moment=require('moment');
 
@@ -140,6 +141,8 @@ app.use('/basic', basicRoutes);
 app.use('/bookings',isAuthenticated, bookingsRoute);
 app.use('/social',isAuthenticated,socialRoute)
 app.use('/post',isAuthenticated,postRoute)
+app.use('/comment',isAuthenticated,commentRoute)
+
 app.get('/hello', (req, res) => res.send('Hello World!'))
 
 app.listen(port, () => console.log(`PJP Cloud APIs listening at PORT -> ${port}`))

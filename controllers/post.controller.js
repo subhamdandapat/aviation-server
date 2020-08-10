@@ -110,21 +110,30 @@ function getProfile(role, profileid) {
 }
 
 router.get('/all', function (req, res) {
-    Post.find({}).sort({ createdDate: -1 }).exec(function (error, success) {
-
-        getProfileImage(success).then(function (profileimage) {
-            res.status(200).json({
-                error: false,
-                message: 'Post  List ',
-                data: profileimage
-            })
-        }, function (error) {
-            res.status(200).json({
-                error: true,
-                message: 'Error',
-                data: error
-            })
+    Post.find({}).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
+if(error){
+    res.status(200).json({
+        error: true,
+        message: 'Error',
+        data: error
+    })
+}
+else{
+    getProfileImage(success).then(function (profileimage) {
+        res.status(200).json({
+            error: false,
+            message: 'Post  List ',
+            data: profileimage
         })
+    }, function (error) {
+        res.status(200).json({
+            error: true,
+            message: 'Error',
+            data: error
+        })
+    })
+}
+     
 
 
     })
@@ -133,8 +142,15 @@ router.get('/all', function (req, res) {
 
 router.get('/profile', function (req, res) {
     let profileId = req.query.profileId
-    Post.find({ profileId: profileId }).sort({ createdDate: -1 }).exec(function (error, success) {
-
+    Post.find({ profileId: profileId }).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
+        if(error){
+            res.status(200).json({
+                error: true,
+                message: 'Error',
+                data: error
+            })
+        }
+        else{
         getProfileImage(success).then(function (profileimage) {
             res.status(200).json({
                 error: false,
@@ -148,6 +164,7 @@ router.get('/profile', function (req, res) {
                 data: error
             })
         })
+    } 
     })
 })
 

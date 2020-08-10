@@ -19,7 +19,7 @@ var Post = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
     }],
-    video:[ {
+    video: [{
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
     }],
@@ -28,17 +28,17 @@ var Post = new mongoose.Schema({
         type: String
     },
     likes: [{
-        profileId:{
-            type:String
+        profileId: {
+            type: String
         },
-        designation:{
-            type:String
+        designation: {
+            type: String
         }
 
     }],
-   
     comments: [{
-        type: String
+        type: mongoose.Schema.ObjectId,
+        ref: 'Comment'
     }],
     createdDate: {
         type: Date,
@@ -55,4 +55,6 @@ Post.pre('find', function (next) {
     this.populate('user_id');
     next();
 });
+
+
 module.exports = mongoose.model('Post', Post); 
