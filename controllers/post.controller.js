@@ -111,60 +111,58 @@ function getProfile(role, profileid) {
 
 router.get('/all', function (req, res) {
     Post.find({}).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
-if(error){
-    res.status(200).json({
-        error: true,
-        message: 'Error',
-        data: error
-    })
-}
-else{
-    getProfileImage(success).then(function (profileimage) {
-        res.status(200).json({
-            error: false,
-            message: 'Post  List ',
-            data: profileimage
-        })
-    }, function (error) {
-        res.status(200).json({
-            error: true,
-            message: 'Error',
-            data: error
-        })
-    })
-}
-     
-
-
-    })
-})
-
-
-router.get('/profile', function (req, res) {
-    let profileId = req.query.profileId
-    Post.find({ profileId: profileId }).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
-        if(error){
+        if (error) {
             res.status(200).json({
                 error: true,
                 message: 'Error',
                 data: error
             })
         }
-        else{
-        getProfileImage(success).then(function (profileimage) {
-            res.status(200).json({
-                error: false,
-                message: 'Post  List ',
-                data: profileimage
+        else {
+            getProfileImage(success).then(function (profileimage) {
+                res.status(200).json({
+                    error: false,
+                    message: 'Post  List ',
+                    data: profileimage
+                })
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
             })
-        }, function (error) {
+        }
+
+
+
+    })
+})
+router.get('/profile', function (req, res) {
+    let profileId = req.query.profileId
+    Post.find({ profileId: profileId }).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
+        if (error) {
             res.status(200).json({
                 error: true,
                 message: 'Error',
                 data: error
             })
-        })
-    } 
+        }
+        else {
+            getProfileImage(success).then(function (profileimage) {
+                res.status(200).json({
+                    error: false,
+                    message: 'Post  List ',
+                    data: profileimage
+                })
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
+            })
+        }
     })
 })
 
@@ -221,6 +219,7 @@ router.put('/like', function (req, res) {    //postid from req body
         profileId: profileId,
         designation: designation
     }
+   
     Post.findById({ _id: postId }, function (error, postdetail) {
         if (error) {
             res.status(200).json({
@@ -230,45 +229,40 @@ router.put('/like', function (req, res) {    //postid from req body
             })
         }
         else {
-            let exists = false;
-            let newArray=postdetail.likes;
-            if(postdetail.likes.length>0)
-            postdetail.likes.forEach(el => {
-                if (el.profileId != profileId && el.designation != designation) {
-                    newArray.push(like)
+         if(postdetail!=null&& Object.keys(postdetail).length>0){
+            let index = (postdetail.likes).findIndex(x => x.profileId == profileId);
+            let exists=false;
+            console.log(index)
+            if (index != -1) {
+                //already present
+                (postdetail.likes).splice(index,1)
+                exists=true;
+
+            }else{
+                postdetail.likes.push(like);
+                exists=false;
+            }
+
+            postdetail.save(function (error, success) {
+
+                if (error) {
+                    res.status(200).json({
+                        error: true,
+                        message: 'Error Occurred. ',
+                        data: error
+                    })
+                }
+                else {
+                  
+                    res.status(200).json({
+                        error: false,
+                        message: exists==true?'Post  UnLiked Successfully':'Post Liked Successfully.',
+                        data: success
+                    })
                 }
             })
-            else
-            newArray.push(like)
-            // if (exists == true) {
-            //     //alreasy liked
-            //     res.status(200).json({
-            //         error: false,
-            //         message: 'Post Already Liked.',
-
-            //     })
-            // }
-            // else {
-            //     //save 
-            //     postdetail.likes.push(like);
-
-                postdetail.save(function (error, success) {
-
-                    if (error) {
-                        res.status(200).json({
-                            error: true,
-                            message: 'Error Occurred ',
-                            data: error
-                        })
-                    }
-                    else {
-                        res.status(200).json({
-                            error: false,
-                            message: 'Post  Liked Successfully',
-                            data: success
-                        })
-                    }
-                })
+         }
+              
             // }
         }
     })
