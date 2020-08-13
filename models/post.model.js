@@ -55,6 +55,14 @@ Post.pre('find', function (next) {
     this.populate('user_id');
     next();
 });
+Post.pre('findOne', function (next) {
+    this.populate('comments');
+    next();
+});
+Post.pre('find', function (next) {
+    this.populate('comments');
+    next();
+});
 
 
 module.exports = mongoose.model('Post', Post); 
