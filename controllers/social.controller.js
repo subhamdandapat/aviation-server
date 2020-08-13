@@ -44,7 +44,7 @@ router.get('/profile', function (req, res) {
 })
 
 function getProfile(role, user_id) {
-
+console.log('roleeee',role, user_id)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -229,15 +229,20 @@ async function post_images(profileId) {
 router.post('/social_profile', function (req, res) {
     let profileId = req.body.profileId;
     let designation = req.body.designation;
+    console.log('reu.body',profileId,designation)
     getProfile(designation, profileId)
         .then(function (profile) {
+            console.log('profileeeeeeee',profile)
             getUsersWholeProfile(profile).then(function (data) {
-                console.log('data', data)
+                console.log('dataaaaaaaa', data)
                 let picsdata = [];
                 if (profile.profile_picture)
                     picsdata.push(profile.profile_picture);
+                    console.log('picsdata avaialble',picsdata)
                 if (data[0] != '')
                     picsdata.push(data[0]);
+                    console.log('picsdata ',picsdata)
+                    console.log('response ',data[3],data[2])
 
                 res.status(200).json({
                     error: false,
@@ -250,6 +255,7 @@ router.post('/social_profile', function (req, res) {
                 })
 
             }, function (error) {
+                console.log('errror',error)
                 res.status(200).json({
                     error: true,
                     message: 'Error',
