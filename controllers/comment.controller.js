@@ -15,7 +15,7 @@ router.post('/new', function (req, res) {
 
     getProfile(designation, profileId)
         .then(function (success) {
-         
+
             let data = {
                 profileId: profileId,
                 designation: designation,
@@ -38,8 +38,8 @@ router.post('/new', function (req, res) {
                     })
                 }
                 else {
-                    Post.updateOne({ _id: req.body.postId }, { $addToSet: { comments: newcomment._id } }, function (error, newupdate) {
-                        console.log(';;;;;', newupdate)
+                    Post.findByIdAndUpdate({ _id: req.body.postId }, { $addToSet: { comments: newcomment._id } }, { returnOriginal: false }, function (error, newupdate) {
+                       
                         if (error) {
                             res.status(200).json({
                                 error: true,
@@ -48,11 +48,19 @@ router.post('/new', function (req, res) {
                             })
                         }
                         else {
-                            res.status(200).json({
-                                error: false,
-                                message: 'Comment added successfully',
-                                data: newupdate
+                            populatecomments(newupdate).then(function (response) {
+                               
+                                newupdate.comments = response
+                                res.status(200).json({
+                                    error: false,
+                                    message: 'Comment added successfully',
+                                    data: newupdate
+                                })
+                            }, function (error) {
+
                             })
+
+
                         }
                     })
 
@@ -67,6 +75,63 @@ router.post('/new', function (req, res) {
             })
         })
 })
+
+async function populatecomments(comment) {
+    let x = [];
+    for (const subs of comment.comments) {
+        await Promise.all([detailedComments(subs)]).then(function (values) {
+            // console.log(';;;;;;;;;;;;;;;;;;', values)
+            // var data = subs.toObject();
+            // data.profile_picture = values[0].profile_picture;
+            x.push(values[0][0])
+        })
+    }
+    return x;
+}
+
+async function detailedComments(sub) {
+    return new Promise(function (resolve, reject) {
+        Comment.find({ _id: sub }).populate('userid').exec(function (error, detail) {
+            if (error) {
+                reject(error)
+            }
+            else {
+                let Collection;
+                let data = detail[0].toObject();
+              
+                switch ((data.designation)) {
+                    case 'Pilots':
+                     
+                        Collection = Pilots;
+                        break;
+                    case 'Flight Attendant':
+                        Collection = Attendant;
+                        break;
+                    case 'Mechanic':
+                        Collection = Mechanic;
+                        break;
+                    default:
+                        reject({})
+                        break;
+                }
+       
+                Collection.findOne({
+                    _id: data.profileId                                                 //find by userid in profile
+                }, function (error, success) {
+        
+                    if (!error && success != null) {
+                    
+                     data.profile_picture=success.profile_picture
+                        resolve(data)
+                    } else {
+                        reject(error)
+                    }
+                })
+                resolve(detail)
+            }
+        })
+    })
+}
 
 function getProfile(role, profileid) {
 

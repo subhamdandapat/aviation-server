@@ -227,8 +227,8 @@ async function post_images(profileId) {
 
 // post,profile,photos, get from profileid
 router.get('/social_profile', function (req, res) {
-    let profileId = req.query.profileId;
-    let designation = req.query.role;
+    let profileId = req.body.profileId;
+    let designation = req.body.designation;
     getProfile(designation, profileId)
         .then(function (profile) {
             getUsersWholeProfile(profile).then(function (data) {
