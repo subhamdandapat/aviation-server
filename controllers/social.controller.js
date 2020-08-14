@@ -65,7 +65,10 @@ console.log("collelllll----->>>"+Collection)
         Collection.findOne({
             _id: user_id                                                 //find by userid in profile
         }, function (error, success) {
-console.log("success----->>>"+success);
+            console.log('social error',error);
+            console.log(' social profile success',success)
+
+
             if (!error && success != null) {
                 resolve(success)
             } else {
