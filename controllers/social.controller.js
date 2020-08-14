@@ -61,14 +61,15 @@ console.log('roleeee',role, user_id)
                 reject({})
                 break;
         }
-
+console.log("collelllll----->>>"+Collection)
         Collection.findOne({
             _id: user_id                                                 //find by userid in profile
         }, function (error, success) {
-
+console.log("success----->>>"+success);
             if (!error && success != null) {
                 resolve(success)
             } else {
+                console.log("error--->>>"+error);
                 reject(error)
             }
         })
