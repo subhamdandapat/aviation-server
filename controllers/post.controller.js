@@ -13,7 +13,7 @@ const jwthelper = require('./../helpers/token.helper');
 const moment = require('moment');
 // const { post } = require('./users.controller');
 
-
+// NEW POST CREATION
 router.post('/new', function (req, res) {
     //profileid,text,
     let profileId = req.query.profileId;
@@ -109,6 +109,7 @@ function getProfile(role, profileid) {
     });
 }
 
+// ALL POSTS LIST
 router.get('/all', function (req, res) {
     Post.find({}).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
         if (error) {
@@ -119,11 +120,12 @@ router.get('/all', function (req, res) {
             })
         }
         else {
-            getProfileImage(success).then(function (profileimage) {
+            like_image_details(success).then(function (like_image) {
+
                 res.status(200).json({
                     error: false,
                     message: 'Post  List ',
-                    data: profileimage
+                    data: like_image
                 })
             }, function (error) {
                 res.status(200).json({
@@ -136,8 +138,11 @@ router.get('/all', function (req, res) {
 
 
 
+
     })
 })
+
+// GET POST LIST OF A PARTICULAR USER
 router.get('/profile', function (req, res) {
     let profileId = req.query.profileId
     Post.find({ profileId: profileId }).sort({ createdDate: -1 }).populate('comments').exec(function (error, success) {
@@ -149,11 +154,11 @@ router.get('/profile', function (req, res) {
             })
         }
         else {
-            getProfileImage(success).then(function (profileimage) {
+            like_image_details(success).then(function (like_image) {
                 res.status(200).json({
                     error: false,
                     message: 'Post  List ',
-                    data: profileimage
+                    data: like_image
                 })
             }, function (error) {
                 res.status(200).json({
@@ -166,19 +171,21 @@ router.get('/profile', function (req, res) {
     })
 })
 
-async function getProfileImage(array) {
+async function like_image_details(array) {
     let x = [];
     for (const subs of array) {
-        await Promise.all([getImage(subs)]).then(function (values) {
+        await Promise.all([getImage(subs), postLikes(subs)]).then(function (values) {
+            console.log('-----------===============', values)
             var data = subs.toObject();
             data.profile_picture = values[0].profile_picture;
+            data.likes = values[1]
             x.push(data)
         })
     }
     return x;
-
 }
 
+//fetch profilepicture of user
 async function getImage(profile) {
     return new Promise(function (resolve, reject) {
         let Collection;
@@ -211,6 +218,53 @@ async function getImage(profile) {
     })
 }
 
+// populate profile details inside like
+async function postLikes(postlike) {
+    console.log(postlike)
+    let y = [];
+    for (const subs of postlike.likes) {
+        await Promise.all([getProfileDetails(subs.designation, subs.profileId)]).then(function (values) {
+            console.log(';;;;', values)
+            y.push(values[0])
+        })
+    }
+    return y;
+}
+
+//get profile details of user 
+function getProfileDetails(role, profileId) {
+    console.log(role, profileId)
+    return new Promise(function (resolve, reject) {
+        let Collection;
+        switch (role) {
+            case 'Pilot':
+                Collection = Pilots;
+                break;
+            case 'Flight Attendant':
+                Collection = Attendant;
+                break;
+            case 'Mechanic':
+                Collection = Mechanic;
+                break;
+            default:
+                reject({})
+                break;
+        }
+
+        Collection.findOne({
+            _id: profileId                                                 //find by userid in profile
+        }, function (error, success) {
+
+            if (!error && success != null) {
+                resolve(success)
+            } else {
+
+                reject(error)
+            }
+        })
+    });
+}
+// LIKE UNLIKE A POST
 router.put('/like', function (req, res) {    //postid from req body
     let profileId = req.query.profileId;
     let designation = req.query.role;
@@ -219,7 +273,7 @@ router.put('/like', function (req, res) {    //postid from req body
         profileId: profileId,
         designation: designation
     }
-   
+
     Post.findById({ _id: postId }, function (error, postdetail) {
         if (error) {
             res.status(200).json({
@@ -229,40 +283,50 @@ router.put('/like', function (req, res) {    //postid from req body
             })
         }
         else {
-         if(postdetail!=null&& Object.keys(postdetail).length>0){
-            let index = (postdetail.likes).findIndex(x => x.profileId == profileId);
-            let exists=false;
-            console.log(index)
-            if (index != -1) {
-                //already present
-                (postdetail.likes).splice(index,1)
-                exists=true;
+            if (postdetail != null && Object.keys(postdetail).length > 0) {
+                let index = (postdetail.likes).findIndex(x => x.profileId == profileId);
+                let exists = false;
+                console.log(index)
+                if (index != -1) {
+                    //already present
+                    (postdetail.likes).splice(index, 1)
+                    exists = true;
 
-            }else{
-                postdetail.likes.push(like);
-                exists=false;
+                } else {
+                    postdetail.likes.push(like);
+                    exists = false;
+                }
+
+                postdetail.save(function (error, success) {
+
+                    if (error) {
+                        res.status(200).json({
+                            error: true,
+                            message: 'Error Occurred. ',
+                            data: error
+                        })
+                    }
+                    else {
+                        postLikes(success).then(function (result) {
+                            let response = (success).toObject()
+                            response.likes = result
+                            res.status(200).json({
+                                error: false,
+                                message: exists == true ? 'Post  UnLiked Successfully' : 'Post Liked Successfully.',
+                                data: response
+                            })
+                        }, function (error) {
+                            res.status(200).json({
+                                error: true,
+                                message: 'Error Occurred. ',
+                                data: error
+                            })
+                        })
+
+                    }
+                })
             }
 
-            postdetail.save(function (error, success) {
-
-                if (error) {
-                    res.status(200).json({
-                        error: true,
-                        message: 'Error Occurred. ',
-                        data: error
-                    })
-                }
-                else {
-                  
-                    res.status(200).json({
-                        error: false,
-                        message: exists==true?'Post  UnLiked Successfully':'Post Liked Successfully.',
-                        data: success
-                    })
-                }
-            })
-         }
-              
             // }
         }
     })

@@ -49,19 +49,21 @@ console.log('roleeee',role, user_id)
         let Collection;
         switch (role) {
             case 'Pilot':
+              
                 Collection = Pilots;
                 break;
             case 'Flight Attendant':
+            
                 Collection = Attendant;
                 break;
             case 'Mechanic':
+
                 Collection = Mechanic;
                 break;
             default:
                 reject({})
                 break;
         }
-console.log("collelllll----->>>"+Collection)
         Collection.findOne({
             _id: user_id                                                 //find by userid in profile
         }, function (error, success) {
@@ -250,7 +252,7 @@ router.post('/social_profile', function (req, res) {
 
                 res.status(200).json({
                     error: false,
-                    message: 'All Pics',
+                    message: 'User whole profile detail',
                     basic_profile: profile,
                     social_profile: data[3],
                     posts: data[2],
