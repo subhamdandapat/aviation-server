@@ -48,16 +48,23 @@ router.post('/new', function (req, res) {
                             })
                         }
                         else {
-                            populatecomments(newupdate).then(function (response) {
-                               
-                                newupdate.comments = response
+                            populateCommentsLikes(newupdate).then(function (response) {
+                              
+                               let data=newupdate.toObject();
+                                data.comments = response[0][0];
+                                data.likes = response[0][1];
+
                                 res.status(200).json({
                                     error: false,
                                     message: 'Comment added successfully',
-                                    data: newupdate
+                                    data: data
                                 })
                             }, function (error) {
-
+                                res.status(200).json({
+                                    error: true,
+                                    message: 'Error',
+                                    data: error
+                                })
                             })
 
 
@@ -76,13 +83,19 @@ router.post('/new', function (req, res) {
         })
 })
 
+
+async function populateCommentsLikes(post){
+    let z=[]
+    await Promise.all([populatecomments(post),postLikes(post)]).then(function (values) {
+       
+        z.push(values)
+    }) 
+    return z
+}
 async function populatecomments(comment) {
     let x = [];
     for (const subs of comment.comments) {
         await Promise.all([detailedComments(subs)]).then(function (values) {
-            // console.log(';;;;;;;;;;;;;;;;;;', values)
-            // var data = subs.toObject();
-            // data.profile_picture = values[0].profile_picture;
             x.push(values[0][0])
         })
     }
@@ -165,5 +178,17 @@ function getProfile(role, profileid) {
     });
 }
 
+// populate profile details inside like
+async function postLikes(postlike) {
+
+    let y = [];
+    for (const subs of postlike.likes) {
+        await Promise.all([getProfile(subs.designation, subs.profileId)]).then(function (values) {
+           
+            y.push(values[0])
+        })
+    }
+    return y;
+}
 
 module.exports = router;
