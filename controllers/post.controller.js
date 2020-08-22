@@ -11,6 +11,7 @@ const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
 const moment = require('moment');
+const { post } = require('./social.controller');
 // const { post } = require('./users.controller');
 
 // NEW POST CREATION
@@ -39,7 +40,8 @@ router.post('/new', function (req, res) {
                 socialId: success._id,
                 db_collection: db_collection,
                 image: req.body.image ? req.body.image : [],
-                video: req.body.video ? req.body.video : []
+                video: req.body.video ? req.body.video : [],
+                location:req.body.location?req.body.location:''
             }
             requestdata = new Post(data);
             requestdata.save(function (error, newpost) {
@@ -332,5 +334,48 @@ router.put('/like', function (req, res) {    //postid from req body
     })
 
 })
+
+//GET DEATILS OF SINGLR POST FROM POST ID
+router.get('/single',function(req,res){
+//postId
+Post.findById({_id:req.body.postId}).populate('comments').exec(function (error, success) {
+    // console.log(error,success);
+    if(error || success==null){
+        res.status(200).json({
+            error: true,
+            message: 'Error',
+            data: error
+        })
+    }else{
+        singlePostDetails(success).then(function(values){
+            res.status(200).json({
+                error: false,
+                message: 'Post Detail ',
+                data: values
+            })
+        },function(error){
+            res.status(200).json({
+                error: true,
+                message: 'Error',
+                data: error
+            })
+        })
+    }
+   
+})
+
+})
+async function singlePostDetails(post){
+    let data;
+    await Promise.all([getImage(post), postLikes(post)]).then(function (values) {
+        console.log(';;;;',values[0])
+        console.log('/**/*/*/*',values[1])
+       data = post.toObject();
+        data.profile_picture = values[0].profile_picture;
+        data.likes = values[1]
+        // x.push(data)
+    })
+    return data;
+}
 
 module.exports = router;

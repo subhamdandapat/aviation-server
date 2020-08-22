@@ -27,6 +27,9 @@ var Post = new mongoose.Schema({
     {
         type: String
     },
+    location:{
+        type:String
+    },
     likes: [{
         profileId: {
             type: String
