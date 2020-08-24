@@ -44,16 +44,16 @@ router.get('/profile', function (req, res) {
 })
 
 function getProfile(role, user_id) {
-console.log('roleeee',role, user_id)
+    console.log('roleeee', role, user_id)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
             case 'Pilot':
-              
+
                 Collection = Pilots;
                 break;
             case 'Flight Attendant':
-            
+
                 Collection = Attendant;
                 break;
             case 'Mechanic':
@@ -67,14 +67,14 @@ console.log('roleeee',role, user_id)
         Collection.findOne({
             _id: user_id                                                 //find by userid in profile
         }, function (error, success) {
-            console.log('social error',error);
-            console.log(' social profile success',success)
+            console.log('social error', error);
+            console.log(' social profile success', success)
 
 
             if (!error && success != null) {
                 resolve(success)
             } else {
-                console.log("error--->>>"+error);
+                console.log("error--->>>" + error);
                 reject(error)
             }
         })
@@ -230,25 +230,24 @@ async function post_images(profileId) {
     })
 }
 
-
 // post,profile,photos, get from profileid
 router.post('/social_profile', function (req, res) {
     let profileId = req.body.profileId;
     let designation = req.body.designation;
-    console.log('reu.body',profileId,designation)
+    console.log('reu.body', profileId, designation)
     getProfile(designation, profileId)
         .then(function (profile) {
-            console.log('profileeeeeeee',profile)
+            console.log('profileeeeeeee', profile)
             getUsersWholeProfile(profile).then(function (data) {
                 console.log('dataaaaaaaa', data)
                 let picsdata = [];
                 if (profile.profile_picture)
                     picsdata.push(profile.profile_picture);
-                    console.log('picsdata avaialble',picsdata)
+                console.log('picsdata avaialble', picsdata)
                 if (data[0] != '')
                     picsdata.push(data[0]);
-                    console.log('picsdata ',picsdata)
-                    console.log('response ',data[3],data[2])
+                console.log('picsdata ', picsdata)
+                console.log('response ', data[3], data[2])
 
                 res.status(200).json({
                     error: false,
@@ -261,7 +260,7 @@ router.post('/social_profile', function (req, res) {
                 })
 
             }, function (error) {
-                console.log('errror',error)
+                console.log('errror', error)
                 res.status(200).json({
                     error: true,
                     message: 'Error',
@@ -304,5 +303,93 @@ async function social_profile(userId) {
             }
         })
     })
+}
+
+//SEARCH A USER BY NAME          casesenitive
+router.get('/search', function (req, res) {
+    //letter
+    let search_letter = req.body.search;
+    Users.find({}, function (error, list) {
+        console.log('users list', error, list)
+        if (error) {
+            res.status(200).json({
+                error: true,
+                message: 'Error.',
+                data: error
+            })
+        }
+        else if (list.length == 0) {
+            res.status(200).json({
+                error: false,
+                message: 'No Result Found',
+                data: []
+            })
+        }
+        else {
+            getProfileIdDesignation(list, search_letter).then(function (result) {
+                console.log('result', result)
+                res.status(200).json({
+                    error: false,
+                    message: 'Searched Result.',
+                    data: result
+                })
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Error.',
+                    data: error
+                })
+            })
+        }
+    })
+})
+
+//get users which have same name
+async function getProfileIdDesignation(list, search_letter) {
+    let y = [];
+    for (const subs of list) {
+        let name = (subs.first_name).trim();
+        if (name.startsWith(search_letter)) {
+            await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
+                y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id, designation: subs.designation, profileId: values[0][0]._id })
+            })
+        }
+
+    }
+    return y;
+}
+
+//profile of user
+async function userProfile(id, designation) {
+
+    return new Promise(function (resolve, reject) {
+        let Collection;
+        switch (designation) {
+            case 'Pilot':
+
+                Collection = Pilots;
+                break;
+            case 'Flight Attendant':
+
+                Collection = Attendant;
+                break;
+            case 'Mechanic':
+
+                Collection = Mechanic;
+                break;
+            default:
+                reject({})
+                break;
+        }
+        Collection.find({ user_id: id }, function (error, success) {
+            console.log('attendant', error, success)
+            if (error) {
+                reject(error)
+            } else {
+                resolve(success)
+            }
+        })
+    })
+
 }
 module.exports = router;
