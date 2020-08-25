@@ -16,7 +16,7 @@ const { post } = require('./social.controller');
 
 // NEW POST CREATION
 router.post('/new', function (req, res) {
-    //profileid,text,
+    //profileid,text,taggedusers
     let profileId = req.query.profileId;
     let designation = req.query.role;
     let db_collection = '';
@@ -41,7 +41,8 @@ router.post('/new', function (req, res) {
                 db_collection: db_collection,
                 image: req.body.image ? req.body.image : [],
                 video: req.body.video ? req.body.video : [],
-                location:req.body.location?req.body.location:''
+                location:req.body.location?req.body.location:'',
+                taggedUsers:req.body.taggedUsers?req.body.taggedUsers:[]
             }
             requestdata = new Post(data);
             requestdata.save(function (error, newpost) {

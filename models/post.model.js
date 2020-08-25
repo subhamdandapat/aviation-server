@@ -43,6 +43,7 @@ var Post = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Comment'
     }],
+    taggedUsers:[],
     createdDate: {
         type: Date,
         default: Date.now
