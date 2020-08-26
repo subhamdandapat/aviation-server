@@ -306,9 +306,9 @@ async function social_profile(userId) {
 }
 
 //SEARCH A USER BY NAME          casesenitive
-router.post('/search', function (req, res) {
+router.get('/search', function (req, res) {
     //letter
-    let search_letter = req.body.search;
+    let search_letter = req.query.search;
     Users.find({}, function (error, list) {
         console.log('users list', error, list)
         if (error) {
