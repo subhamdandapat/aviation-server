@@ -309,8 +309,8 @@ async function social_profile(userId) {
 router.get('/search', function (req, res) {
     //letter
     const search_letter = req.query.search;
-    updatedsearchletter = search_letter.trim().toUpperCase();
-    console.log("updated----->"+updatedsearchletter);
+    // updatedsearchletter = search_letter.trim().toUpperCase();
+    // console.log("updated----->"+updatedsearchletter);
     Users.find({}, function (error, list) {
         console.log('users list', error, list)
         if (error) {
@@ -328,7 +328,7 @@ router.get('/search', function (req, res) {
             })
         }
         else {
-            getProfileIdDesignation(list, updatedsearchletter).then(function (result) {
+            getProfileIdDesignation(list, search_letter).then(function (result) {
                 console.log('result', result)
                 res.status(200).json({
                     error: false,
@@ -351,7 +351,7 @@ async function getProfileIdDesignation(list, search_letter) {
     let y = [];
     console.log("list----->"+list);
     for (const subs of list) {
-        let name = (subs.first_name).trim().toUpperCase();
+        let name = (subs.first_name)
         console.log("name----->>"+name);
         if (name.startsWith(search_letter)) {
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
