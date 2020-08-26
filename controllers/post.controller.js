@@ -42,7 +42,8 @@ router.post('/new', function (req, res) {
                 image: req.body.image ? req.body.image : [],
                 video: req.body.video ? req.body.video : [],
                 location:req.body.location?req.body.location:'',
-                taggedUsers:req.body.taggedUsers?req.body.taggedUsers:[]
+                taggedUsers:req.body.taggedUsers?req.body.taggedUsers:[],
+                profile_picture: success.profile_picture
             }
             requestdata = new Post(data);
             requestdata.save(function (error, newpost) {
@@ -96,9 +97,12 @@ function getProfile(role, profileid) {
 
             if (!error && success != null) {
                 Social.findOne({ user_id: success.user_id._id }, function (error, success1) {
-                    console.log('success1', success1)
+                    console.log('success1', success1,success)
                     if (!error && success1 != null) {
-                        resolve(success1)
+                        
+                        let data=success1.toObject();
+                        data.profile_picture=success.profile_picture
+                        resolve(data)
                     } else {
                         reject(error)
 
@@ -177,11 +181,10 @@ router.get('/profile', function (req, res) {
 async function like_image_details(array) {
     let x = [];
     for (const subs of array) {
-        await Promise.all([getImage(subs), postLikes(subs)]).then(function (values) {
+        await Promise.all([postLikes(subs)]).then(function (values) {
             console.log('-----------===============', values)
             var data = subs.toObject();
-            data.profile_picture = values[0].profile_picture;
-            data.likes = values[1]
+            data.likes = values[0]
             x.push(data)
         })
     }

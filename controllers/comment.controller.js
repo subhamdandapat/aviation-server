@@ -38,7 +38,7 @@ router.post('/new', function (req, res) {
                     })
                 }
                 else {
-                    Post.findByIdAndUpdate({ _id: req.body.postId }, { $addToSet: { comments: newcomment._id } }, { returnOriginal: false }, function (error, newupdate) {
+                    Post.findByIdAndUpdate({ _id: req.body.postId }, { $addToSet: { comments: newcomment._id } }, { returnOriginal: false }).populate('user_id').exec(function (error, newupdate){
                        
                         if (error) {
                             res.status(200).json({

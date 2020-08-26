@@ -44,6 +44,10 @@ var Post = new mongoose.Schema({
         ref: 'Comment'
     }],
     taggedUsers:[],
+    profile_picture:{
+        type:mongoose.Schema.ObjectId,
+        ref: "Image"
+    },
     createdDate: {
         type: Date,
         default: Date.now
