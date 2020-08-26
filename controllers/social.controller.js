@@ -287,12 +287,77 @@ async function user_posts(profileId) {
             if (error) {
                 reject(error)
             } else {
-                resolve(success)
+                postLike(success).then(function(result){
+console.log('jhgfdvcbjh',result)
+    resolve(result)
+                })
+              
             }
         })
     })
 }
 
+
+async function postLike(posts){
+console.log('INSIDE POSTS LIKES')
+let x = [];
+for (const subs of posts) {
+    await Promise.all([postLikes(subs)]).then(function (values) {
+        console.log('-----------===============', values)
+        var data = subs.toObject();
+        data.likes = values[0][0]
+        x.push(data)
+    })
+}
+return x;
+}
+// populate profile details inside like
+async function postLikes(postlike) {
+    console.log('postlike')
+    let y = [];
+    for (const subs of postlike.likes) {
+        await Promise.all([getProfileDetails(subs.designation, subs.profileId)]).then(function (values) {
+            console.log(';;;;', values)
+            y.push(values[0])
+        })
+    }
+    return y;
+}
+
+
+//get profile details of user 
+function getProfileDetails(role, profileId) {
+    console.log(role, profileId)
+    return new Promise(function (resolve, reject) {
+        let Collection;
+        switch (role) {
+            case 'Pilot':
+                Collection = Pilots;
+                break;
+            case 'Flight Attendant':
+                Collection = Attendant;
+                break;
+            case 'Mechanic':
+                Collection = Mechanic;
+                break;
+            default:
+                reject({})
+                break;
+        }
+
+        Collection.findOne({
+            _id: profileId                                                 //find by userid in profile
+        }, function (error, success) {
+
+            if (!error && success != null) {
+                resolve(success)
+            } else {
+
+                reject(error)
+            }
+        })
+    });
+}
 async function social_profile(userId) {
     return new Promise(function (resolve, reject) {
         Social.findOne({ user_id: userId }, function (error, success) {
