@@ -351,7 +351,7 @@ async function getProfileIdDesignation(list, search_letter) {
     let y = [];
     console.log("list----->"+list);
     for (const subs of list) {
-        let name = (subs.first_name).trim();
+        let name = (subs.first_name).trim().toUpperCase();
         console.log("name----->>"+name);
         if (name.startsWith(search_letter)) {
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
