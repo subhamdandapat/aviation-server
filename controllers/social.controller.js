@@ -8,16 +8,16 @@ const Attendant = require('./../models/attendant.model');
 const Post = require('./../models/post.model');
 
 router.get('/profile', function (req, res) {
-    console.log('ikugy', req.query.profileId, req.query.role)
+    // console.log('ikugy', req.query.profileId, req.query.role)
     let profileId = req.query.profileId;
     let designation = req.query.role;
     getProfile(designation, profileId)
         .then(function (profile) {
-            console.log(';;;', profile)
+            // console.log(';;;', profile)
             Social.findOne({
                 user_id: profile.user_id._id
             }, function (error, success) {
-                console.log('////', error, success)
+                // console.log('////', error, success)
                 if (error) {
                     res.status(200).json({
                         error: true,
@@ -44,7 +44,7 @@ router.get('/profile', function (req, res) {
 })
 
 function getProfile(role, user_id) {
-    console.log('roleeee', role, user_id)
+    // console.log('roleeee', role, user_id)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -67,14 +67,14 @@ function getProfile(role, user_id) {
         Collection.findOne({
             _id: user_id                                                 //find by userid in profile
         }, function (error, success) {
-            console.log('social error', error);
-            console.log(' social profile success', success)
+            // console.log('social error', error);
+            // console.log(' social profile success', success)
 
 
             if (!error && success != null) {
                 resolve(success)
             } else {
-                console.log("error--->>>" + error);
+                // console.log("error--->>>" + error);
                 reject(error)
             }
         })
@@ -88,7 +88,7 @@ router.put('/update', function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
     let socialId = req.query.profileId;
-    console.log(req.body)
+    // console.log(req.body)
     let update = {};
     if (req.body.image) {
         update = { "background_image": req.body.image }
@@ -98,11 +98,11 @@ router.put('/update', function (req, res) {
     }
     getProfile(designation, profileId)
         .then(function (profile) {
-            console.log(';;;', profile)
+            // console.log(';;;', profile)
 
             Social.findOneAndUpdate({ user_id: profile.user_id._id }, { "$set": update }, { new: true },
                 function (error, success) {
-                    console.log('*****', error, success)
+                    // console.log('*****', error, success)
                     if (error) {
                         res.status(200).json({
                             error: true,
@@ -234,20 +234,20 @@ async function post_images(profileId) {
 router.post('/social_profile', function (req, res) {
     let profileId = req.body.profileId;
     let designation = req.body.designation;
-    console.log('reu.body', profileId, designation)
+    // console.log('reu.body', profileId, designation)
     getProfile(designation, profileId)
         .then(function (profile) {
-            console.log('profileeeeeeee', profile)
+            // console.log('profileeeeeeee', profile)
             getUsersWholeProfile(profile).then(function (data) {
-                console.log('dataaaaaaaa', data)
+                // console.log('dataaaaaaaa', data)
                 let picsdata = [];
                 if (profile.profile_picture)
                     picsdata.push(profile.profile_picture);
-                console.log('picsdata avaialble', picsdata)
+                // console.log('picsdata avaialble', picsdata)
                 if (data[0] != '')
                     picsdata.push(data[0]);
-                console.log('picsdata ', picsdata)
-                console.log('response ', data[3], data[2])
+                // console.log('picsdata ', picsdata)
+                // console.log('response ', data[3], data[2])
 
                 res.status(200).json({
                     error: false,
@@ -260,7 +260,7 @@ router.post('/social_profile', function (req, res) {
                 })
 
             }, function (error) {
-                console.log('errror', error)
+                // console.log('errror', error)
                 res.status(200).json({
                     error: true,
                     message: 'Error',
@@ -388,7 +388,7 @@ async function userProfile(id, designation) {
                 break;
         }
         Collection.find({ user_id: id }, function (error, success) {
-            console.log('attendant', error, success)
+            // console.log('attendant', error, success)
             if (error) {
                 reject(error)
             } else {
