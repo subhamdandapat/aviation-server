@@ -113,7 +113,7 @@ async function detailedComments(sub) {
                 let data = detail[0].toObject();
               
                 switch ((data.designation)) {
-                    case 'Pilots':
+                    case 'Pilot':
                      
                         Collection = Pilots;
                         break;
