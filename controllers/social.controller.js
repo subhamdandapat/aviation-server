@@ -346,11 +346,15 @@ router.get('/search', function (req, res) {
 
 //get users which have same name
 async function getProfileIdDesignation(list, search_letter) {
+    console.log('get profile designation',search_letter)
     let y = [];
     for (const subs of list) {
         let name = (subs.first_name).trim();
+        console.log('*****************',name.startsWith(search_letter))
         if (name.startsWith(search_letter)) {
+            console.log('inside if')
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
+                console.log('VA;UES  ',values)
                 y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id, designation: subs.designation, profileId: values[0][0]._id })
             })
         }
@@ -361,20 +365,20 @@ async function getProfileIdDesignation(list, search_letter) {
 
 //profile of user
 async function userProfile(id, designation) {
-
+console.log('ID DESIGNATION',id,designation)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (designation) {
             case 'Pilot':
-
+console.log('Pilots')
                 Collection = Pilots;
                 break;
             case 'Flight Attendant':
-
+                console.log('Attendant')
                 Collection = Attendant;
                 break;
             case 'Mechanic':
-
+                console.log('Mechanic')
                 Collection = Mechanic;
                 break;
             default:
