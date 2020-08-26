@@ -305,7 +305,7 @@ for (const subs of posts) {
     await Promise.all([postLikes(subs)]).then(function (values) {
         console.log('-----------===============', values)
         var data = subs.toObject();
-        data.likes = values[0][0]
+        data.likes = values[0]
         x.push(data)
     })
 }
