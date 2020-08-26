@@ -309,7 +309,8 @@ async function social_profile(userId) {
 router.get('/search', function (req, res) {
     //letter
     const search_letter = req.query.search;
-    updatedsearchletter = search_letter.trim().toUpperCase()
+    updatedsearchletter = search_letter.trim().toUpperCase();
+    console.log("updated----->"+updatedsearchletter);
     Users.find({}, function (error, list) {
         console.log('users list', error, list)
         if (error) {
@@ -348,15 +349,19 @@ router.get('/search', function (req, res) {
 //get users which have same name
 async function getProfileIdDesignation(list, search_letter) {
     let y = [];
+    console.log("list----->"+list);
     for (const subs of list) {
         let name = (subs.first_name).trim();
+        console.log("name----->>"+name);
         if (name.startsWith(search_letter)) {
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
+                console.log("values------>>>"+values);
                 y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id, designation: subs.designation, profileId: values[0][0]._id })
             })
         }
 
     }
+    console.log("yyyyy------>>>"+y)
     return y;
 }
 
