@@ -308,7 +308,8 @@ async function social_profile(userId) {
 //SEARCH A USER BY NAME          casesenitive
 router.get('/search', function (req, res) {
     //letter
-    let search_letter = req.query.search;
+    const search_letter = req.query.search;
+    updatedsearchletter = search_letter.trim().toUpperCase()
     Users.find({}, function (error, list) {
         console.log('users list', error, list)
         if (error) {
@@ -326,7 +327,7 @@ router.get('/search', function (req, res) {
             })
         }
         else {
-            getProfileIdDesignation(list, search_letter).then(function (result) {
+            getProfileIdDesignation(list, updatedsearchletter).then(function (result) {
                 console.log('result', result)
                 res.status(200).json({
                     error: false,
