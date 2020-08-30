@@ -6,19 +6,19 @@ const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
 const Social = require('./../models/social.model');
 const Post = require('./../models/post.model');
+const Groups = require('./../models/groups.model');
 const helper = require('./../helpers/email.helper');
 const bcrypt = require("bcryptjs");
 const EmailHelper = require('./../helpers/email.helper');
 const jwthelper = require('./../helpers/token.helper');
 const moment = require('moment');
-const { post } = require('./social.controller');
-// const { post } = require('./users.controller');
 
 // NEW POST CREATION
 router.post('/new', function (req, res) {
-    //profileid,text,taggedusers
+    //profileid,text,taggedusers,groupId
     let profileId = req.query.profileId;
     let designation = req.query.role;
+    let groupId = req.body.groupId ? req.body.groupId : ''
     let db_collection = '';
     if (designation === 'Pilot') {
         db_collection = 'Pilots'
@@ -41,8 +41,8 @@ router.post('/new', function (req, res) {
                 db_collection: db_collection,
                 image: req.body.image ? req.body.image : [],
                 video: req.body.video ? req.body.video : [],
-                location:req.body.location?req.body.location:'',
-                taggedUsers:req.body.taggedUsers?req.body.taggedUsers:[],
+                location: req.body.location ? req.body.location : '',
+                taggedUsers: req.body.taggedUsers ? req.body.taggedUsers : [],
                 profile_picture: success.profile_picture
             }
             requestdata = new Post(data);
@@ -56,11 +56,32 @@ router.post('/new', function (req, res) {
                     })
                 } else if (newpost) {
                     newpost.user_id = success.user_id
-                    res.status(200).json({
-                        error: false,
-                        message: 'Post created Successfully',
-                        data: newpost
-                    })
+                    if (groupId) {
+                        //updategroup with this post
+                        Groups.findByIdAndUpdate({ _id: groupId }, { $addToSet: { posts: newpost._id } }, function (error, response) {
+                            console.log('error', error, response)
+                            if (error) {
+                                res.status(200).json({
+                                    error: true,
+                                    message: 'Error',
+                                    data: error
+                                })
+                            } else {
+                                res.status(200).json({
+                                    error: false,
+                                    message: 'Post created Successfully',
+                                    data: newpost
+                                })
+                            }
+                        })
+                    } else {
+                        res.status(200).json({
+                            error: false,
+                            message: 'Post created Successfully',
+                            data: newpost
+                        })
+                    }
+
                 }
             })
         }, function (error) {
@@ -97,11 +118,11 @@ function getProfile(role, profileid) {
 
             if (!error && success != null) {
                 Social.findOne({ user_id: success.user_id._id }, function (error, success1) {
-                    console.log('success1', success1,success)
+                    console.log('success1', success1, success)
                     if (!error && success1 != null) {
-                        
-                        let data=success1.toObject();
-                        data.profile_picture=success.profile_picture
+
+                        let data = success1.toObject();
+                        data.profile_picture = success.profile_picture
                         resolve(data)
                     } else {
                         reject(error)
@@ -340,41 +361,41 @@ router.put('/like', function (req, res) {    //postid from req body
 })
 
 //GET DEATILS OF SINGLR POST FROM POST ID
-router.get('/single',function(req,res){
-//postId
-Post.findById({_id:req.body.postId}).populate('comments').exec(function (error, success) {
-    // console.log(error,success);
-    if(error || success==null){
-        res.status(200).json({
-            error: true,
-            message: 'Error',
-            data: error
-        })
-    }else{
-        singlePostDetails(success).then(function(values){
-            res.status(200).json({
-                error: false,
-                message: 'Post Detail ',
-                data: values
-            })
-        },function(error){
+router.get('/single', function (req, res) {
+    //postId
+    Post.findById({ _id: req.body.postId }).populate('comments').exec(function (error, success) {
+        // console.log(error,success);
+        if (error || success == null) {
             res.status(200).json({
                 error: true,
                 message: 'Error',
                 data: error
             })
-        })
-    }
-   
-})
+        } else {
+            singlePostDetails(success).then(function (values) {
+                res.status(200).json({
+                    error: false,
+                    message: 'Post Detail ',
+                    data: values
+                })
+            }, function (error) {
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
+            })
+        }
+
+    })
 
 })
-async function singlePostDetails(post){
+async function singlePostDetails(post) {
     let data;
     await Promise.all([getImage(post), postLikes(post)]).then(function (values) {
-        console.log(';;;;',values[0])
-        console.log('/**/*/*/*',values[1])
-       data = post.toObject();
+        console.log(';;;;', values[0])
+        console.log('/**/*/*/*', values[1])
+        data = post.toObject();
         data.profile_picture = values[0].profile_picture;
         data.likes = values[1]
         // x.push(data)

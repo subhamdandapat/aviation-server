@@ -12,7 +12,7 @@ var Post = new mongoose.Schema({
         type: String
     },
     socialId: {
-        type: String,
+         type: mongoose.Schema.ObjectId,
         ref: 'Social'
     },
     image: [{

@@ -1,6 +1,6 @@
-const express = require('express')
-const app = express()
-const port = 3000
+const express = require('express');
+const app = express();
+const port = 3000;
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 var mongoose = require('mongoose');
@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 const Users = require('./models/users.model');
 const Social = require('./models/social.model');
 
-const cors = require('cors')
+const cors = require('cors');
 
 mongoose.connect('mongodb://127.0.0.1:27017/cloud', {
 	useUnifiedTopology: true,
@@ -93,6 +93,7 @@ const bookingsRoute = require("./controllers/bookings.controller");
 const socialRoute=require('./controllers/social.controller')
 const postRoute=require('./controllers/post.controller')
 const commentRoute=require('./controllers/comment.controller')
+const groupsRoute=require('./controllers/groups.controller')
 
 const moment=require('moment');
 
@@ -139,10 +140,10 @@ app.use('/instagram', InstaRoute);
 app.use('/requirements', isAuthenticated, RequirementsRoute);
 app.use('/basic', basicRoutes);
 app.use('/bookings',isAuthenticated, bookingsRoute);
-app.use('/social',isAuthenticated,socialRoute)
-app.use('/post',isAuthenticated,postRoute)
-app.use('/comment',isAuthenticated,commentRoute)
-
-app.get('/hello', (req, res) => res.send('Hello World!'))
+app.use('/social',isAuthenticated,socialRoute);
+app.use('/post',isAuthenticated,postRoute);
+app.use('/comment',isAuthenticated,commentRoute);
+app.use('/groups',isAuthenticated,groupsRoute);
+app.get('/hello', (req, res) => res.send('Hello World!'));
 
 app.listen(port, () => console.log(`PJP Cloud APIs listening at PORT -> ${port}`))
