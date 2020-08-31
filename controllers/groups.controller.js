@@ -26,50 +26,53 @@ router.post('/new', function (request, response) {
         members: request.body.members ? request.body.members : []
     }
     if (request.body.profile_picture) {
-        data.profile_picture= request.body.profile_picture
+        data.profile_picture = request.body.profile_picture
+    }
+    if (request.body.cover_picture) {
+        data.cover_picture = request.body.cover_picture
     }
     requestdata = new Groups(data);
-    getProfile(designation,profileId).then(function(success){
-let socialId= success._id;
+    getProfile(designation, profileId).then(function (success) {
+        let socialId = success._id;
 
-requestdata.save(function (error, newgroup) {
-    console.log('data',error,newgroup)
-if(error){
-    response.status(200).json({
-        error: true,
-        message: 'Error',
-        data: error
-    })
-}else{
-    console.log('jnnn',socialId)
-    //update social with group id 
-  
-    Social.findByIdAndUpdate({ _id:socialId }, { $addToSet: {groups:newgroup._id} },function(error,updated){
-        console.log('error',error,updated)
-        if(error){
-            response.status(200).json({
-                error: true,
-                message: 'Error',
-                data: error
-            })
-        }else{
-            response.status(200).json({
-                error: false,
-                message: 'Group Created Successfully.',
-                data: newgroup
-            })
-        }
+        requestdata.save(function (error, newgroup) {
+            console.log('data', error, newgroup)
+            if (error) {
+                response.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
+            } else {
+                console.log('jnnn', socialId)
+                //update social with group id 
+
+                Social.findByIdAndUpdate({ _id: socialId }, { $addToSet: { groups: newgroup._id } }, function (error, updated) {
+                    console.log('error', error, updated)
+                    if (error) {
+                        response.status(200).json({
+                            error: true,
+                            message: 'Error',
+                            data: error
+                        })
+                    } else {
+                        response.status(200).json({
+                            error: false,
+                            message: 'Group Created Successfully.',
+                            data: newgroup
+                        })
+                    }
+                })
+            }
         })
-}
-})
-    },function(error){
+    }, function (error) {
         response.status(200).json({
             error: true,
             message: 'Error',
             data: error
         })
     })
-   
+
 })
 
 
@@ -113,4 +116,27 @@ function getProfile(role, profileid) {
         })
     });
 }
+
+//GET DETAIL OF A GROUP BY GROUP ID
+router.get('/info',function(request,response){
+
+   Groups.findById({_id:request.query.groupId}).populate('posts').exec(function (error, success) {
+console.log('group detail',error,success)
+if(error){
+    response.status(200).json({
+        error: true,
+        message: 'Error',
+        data: error
+    })
+}else{
+    response.status(200).json({
+        error: false,
+        message: 'Group info',
+        data: success
+    })
+}
+   }) 
+})
+
+
 module.exports = router;

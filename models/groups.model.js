@@ -23,6 +23,10 @@ const groups = new Schema({
         type: Schema.ObjectId,
         ref: "Image"
     },
+    cover_picture: {
+        type: Schema.ObjectId,
+        ref: "Image"
+    },
     posts: [{
         type: Schema.ObjectId,
         ref: "Post"
