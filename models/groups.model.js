@@ -51,4 +51,4 @@ const groups = new Schema({
 //     next();
 // });
 
-module.exports = mongoose.model("groups", groups)
+module.exports = mongoose.model("Groups", groups)

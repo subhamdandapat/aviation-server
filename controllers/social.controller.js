@@ -254,6 +254,7 @@ router.post('/social_profile', function (req, res) {
                     message: 'User whole profile detail',
                     basic_profile: profile,
                     social_profile: data[3],
+                    groups:data[4],
                     posts: data[2],
                     pics: data[1].images.length > 0 ? picsdata.concat(data[1].images) : picsdata,
                     videos: data[1].videos
@@ -273,7 +274,7 @@ router.post('/social_profile', function (req, res) {
 
 async function getUsersWholeProfile(profile) {
     let x;
-    await Promise.all([background_image(profile.user_id._id), post_images(profile._id), user_posts(profile._id), social_profile(profile.user_id._id)]).then(function (values) {
+    await Promise.all([background_image(profile.user_id._id), post_images(profile._id), user_posts(profile._id), social_profile(profile.user_id._id),groups(profile.user_id._id)]).then(function (values) {
 
         x = values
     })
@@ -360,16 +361,34 @@ function getProfileDetails(role, profileId) {
 }
 async function social_profile(userId) {
     return new Promise(function (resolve, reject) {
-        Social.findOne({ user_id: userId }, function (error, success) {
+        Social.findOne({ user_id: userId },function (error, success) {
             if (error) {
                 reject(error)
             } else {
                 resolve(success)
             }
         })
-    })
+})
 }
 
+
+async function groups(userId){
+    return new Promise(function (resolve, reject) {
+    Social.findOne({ user_id: userId }) .populate({ 
+        path: 'groups',
+        populate: {
+          path: 'posts',
+          model: 'Post'
+        } 
+     }).exec(function(error,success){
+        if (error) {
+            reject(error)
+        } else {
+            resolve(success.groups)
+        }
+     })
+})
+}
 //SEARCH A USER BY NAME          casesenitive
 router.get('/search', function (req, res) {
     //letter

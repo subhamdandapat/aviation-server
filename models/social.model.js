@@ -33,6 +33,7 @@ var Social = new mongoose.Schema({
         type: String
     }],
     groups: [{
+     
         type: mongoose.Schema.ObjectId,
         ref: 'Groups'
     }]
