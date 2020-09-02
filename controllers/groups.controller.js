@@ -139,4 +139,25 @@ if(error){
 })
 
 
+
+//LIST OF ALL GROUPS 
+router.get('/all',function(request,response){
+    Groups.find({},function(error,success){
+        if(error){
+            response.status(200).json({
+                error: true,
+                message: 'Error',
+                data: error
+            })
+        }else{
+            response.status(200).json({
+                error: false,
+                message: 'List of groups',
+                data: success
+            })
+        }
+    })
+})
+//update group infoq
+
 module.exports = router;
