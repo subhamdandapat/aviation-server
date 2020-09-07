@@ -158,6 +158,63 @@ router.get('/all',function(request,response){
         }
     })
 })
-//update group infoq
+//update group infoq include all members while creation
 
+//UPDATE GROUP NAME,PURPOSE,coverPICture,profile picture
+router.put('/update',function(request,response){
+    groupId=request.body.groupId;
+let updateData={};
+
+if(request.body.name){
+    updateData.name=request.body.name;
+}
+if(request.body.purpose){
+    updateData.purpose=request.body.purpose;
+}
+if(request.body.cover_picture){
+    updateData.cover_picture=request.body.cover_picture;
+}
+if(request.body.profile_picture){
+    updateData.profile_picture=request.body.profile_picture;
+}
+Groups.findOneAndUpdate({ _id: groupId }, { "$set": updateData }, { new: true },function(error,success){
+console.log(error,success)
+if(error){
+    response.status(200).json({
+        error: true,
+        message: 'Error',
+        data: error
+    })
+}else{
+    response.status(200).json({
+        error: false,
+        message: 'Updated Group Info.',
+        data: success
+    })
+}
+})
+
+})
+
+router.put('/addmember',function(request,response){
+    //group id,members:[]
+    let groupId=request.body.groupId;
+    let members=request.body.members;
+    Groups.findOneAndUpdate({_id:groupId},{ $push: { members: { $each: members} } },{ new: true },function(error,success){
+        if(error){
+            response.status(200).json({
+                error: true,
+                message: 'Error',
+                data: error
+            })
+        }else{
+            response.status(200).json({
+                error: false,
+                message: 'Member added to group.',
+                data: success
+            })
+        }
+    })
+
+})
 module.exports = router;
