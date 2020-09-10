@@ -254,7 +254,7 @@ router.post('/social_profile', function (req, res) {
                     message: 'User whole profile detail',
                     basic_profile: profile,
                     social_profile: data[3],
-                    groups:data[4],
+                    groups: data[4],
                     posts: data[2],
                     pics: data[1].images.length > 0 ? picsdata.concat(data[1].images) : picsdata,
                     videos: data[1].videos
@@ -274,7 +274,7 @@ router.post('/social_profile', function (req, res) {
 
 async function getUsersWholeProfile(profile) {
     let x;
-    await Promise.all([background_image(profile.user_id._id), post_images(profile._id), user_posts(profile._id), social_profile(profile.user_id._id),groups(profile.user_id._id)]).then(function (values) {
+    await Promise.all([background_image(profile.user_id._id), post_images(profile._id), user_posts(profile._id), social_profile(profile.user_id._id), groups(profile.user_id._id)]).then(function (values) {
 
         x = values
     })
@@ -288,29 +288,29 @@ async function user_posts(profileId) {
             if (error) {
                 reject(error)
             } else {
-                postLike(success).then(function(result){
-console.log('jhgfdvcbjh',result)
-    resolve(result)
+                postLike(success).then(function (result) {
+                    console.log('jhgfdvcbjh', result)
+                    resolve(result)
                 })
-              
+
             }
         })
     })
 }
 
 
-async function postLike(posts){
-console.log('INSIDE POSTS LIKES')
-let x = [];
-for (const subs of posts) {
-    await Promise.all([postLikes(subs)]).then(function (values) {
-        console.log('-----------===============', values)
-        var data = subs.toObject();
-        data.likes = values[0]
-        x.push(data)
-    })
-}
-return x;
+async function postLike(posts) {
+    console.log('INSIDE POSTS LIKES')
+    let x = [];
+    for (const subs of posts) {
+        await Promise.all([postLikes(subs)]).then(function (values) {
+            console.log('-----------===============', values)
+            var data = subs.toObject();
+            data.likes = values[0]
+            x.push(data)
+        })
+    }
+    return x;
 }
 // populate profile details inside like
 async function postLikes(postlike) {
@@ -361,33 +361,33 @@ function getProfileDetails(role, profileId) {
 }
 async function social_profile(userId) {
     return new Promise(function (resolve, reject) {
-        Social.findOne({ user_id: userId },function (error, success) {
+        Social.findOne({ user_id: userId }, function (error, success) {
             if (error) {
                 reject(error)
             } else {
                 resolve(success)
             }
         })
-})
+    })
 }
 
 
-async function groups(userId){
+async function groups(userId) {
     return new Promise(function (resolve, reject) {
-    Social.findOne({ user_id: userId }) .populate({ 
-        path: 'groups',
-        populate: {
-          path: 'posts',
-          model: 'Post'
-        } 
-     }).exec(function(error,success){
-        if (error) {
-            reject(error)
-        } else {
-            resolve(success.groups)
-        }
-     })
-})
+        Social.findOne({ user_id: userId }).populate({
+            path: 'groups',
+            populate: {
+                path: 'posts',
+                model: 'Post'
+            }
+        }).exec(function (error, success) {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(success.groups)
+            }
+        })
+    })
 }
 //SEARCH A USER BY NAME          casesenitive
 router.get('/search', function (req, res) {
@@ -433,19 +433,19 @@ router.get('/search', function (req, res) {
 //get users which have same name
 async function getProfileIdDesignation(list, search_letter) {
     let y = [];
-    console.log("list----->"+list);
+    console.log("list----->" + list);
     for (const subs of list) {
         let name = (subs.first_name)
-        console.log("name----->>"+name);
+        console.log("name----->>" + name);
         if (name.startsWith(search_letter)) {
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
-                console.log("values------>>>"+values);
+                console.log("values------>>>" + values);
                 y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id, designation: subs.designation, profileId: values[0][0]._id })
             })
         }
 
     }
-    console.log("yyyyy------>>>"+y)
+    console.log("yyyyy------>>>" + y)
     return y;
 }
 
@@ -482,4 +482,97 @@ async function userProfile(id, designation) {
     })
 
 }
+
+//rate or review
+router.put('/rate_review', function (request, response) {
+    //rate,review,socialid or userid(to whom rate is given)
+    let updateData = {
+        rating: request.body.rating ? request.body.rating : 0,
+        review: request.body.review ? request.body.review : '',
+        profileId: request.query.profileId,
+        designation: request.query.role
+    }
+    getProfileDetails(request.query.role, request.query.profileId).then(function (profiledata) {
+        console.log('profiledata', profiledata);
+        updateData.userId = profiledata.user_id._id;
+        updateData.name = profiledata.user_id.first_name + ' ' + profiledata.user_id.last_name;
+        console.log('kj', updateData);
+        Social.findById({ _id: request.body.socialId }, function (error, socialdata) {
+            console.log('social data', error, socialdata);
+            let reviews = socialdata.rating_reviews;
+            let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
+            console.log('index', index)
+            if (index == -1) {
+                //add review
+                let avg_rating = findAverageRating(reviews.concat([updateData]))
+                Social.findOneAndUpdate({ _id: request.body.socialId }, { $push: { rating_reviews: updateData } }, {
+                    "$set": {
+                        avg_rating: avg_rating
+                    }
+                }, { new: true }, function (error, updated) {
+                    console.log('updated', error, updated)
+                    if (error) {
+                        response.status(200).json({
+                            error: true,
+                            message: 'Error.',
+                            data: error
+                        })
+                    } else {
+                        response.status(200).json({
+                            error: false,
+                            message: 'Reviews added successsfully.',
+                            data: updated
+                        })
+                    }
+
+                })
+            } else {
+                //already present
+                reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
+                reviews[index].review = request.body.review ? request.body.review : reviews[index].review;
+                let avg_rating = findAverageRating(reviews)
+                Social.findOneAndUpdate({ _id: request.body.socialId }, {
+                    "$set": {
+                        rating_reviews: reviews,
+                        avg_rating: avg_rating
+                    },
+
+                }, { new: true }, function (error, updated) {
+                    console.log('updated', error, updated)
+                    if (error) {
+                        response.status(200).json({
+                            error: true,
+                            message: 'Error.',
+                            data: error
+                        })
+                    } else {
+                        response.status(200).json({
+                            error: false,
+                            message: 'Reviews Updated Successsfully.',
+                            data: updated
+                        })
+                    }
+
+                })
+            }
+        })
+    }, function (error) {
+        response.status(200).json({
+            error: true,
+            message: 'Error.',
+            data: error
+        })
+    })
+})
+
+function findAverageRating(list) {
+    var total = 0;
+    for (var i = 0; i < list.length; i++) {
+        total += list[i].rating;
+    }
+    var avg = total / list.length;
+    console.log(avg, total)
+    return (avg.toPrecision(1))
+}
+
 module.exports = router;

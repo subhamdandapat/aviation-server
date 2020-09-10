@@ -9,10 +9,6 @@ var Social = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Image'
     },
-    rating:
-        {
-            type: String
-         },
     about_me:  
         { 
             type: String 
@@ -25,10 +21,7 @@ var Social = new mongoose.Schema({
      { 
          type: String
          },
-    review: 
-    { 
-        type: String
-     },
+    
     posts: [{
         type: String
     }],
@@ -36,6 +29,17 @@ var Social = new mongoose.Schema({
      
         type: mongoose.Schema.ObjectId,
         ref: 'Groups'
+    }],
+    avg_rating:{
+        type:Number
+    },
+    rating_reviews:[{
+        rating:{type:Number,default:0},
+        review: {type:String},
+        name: { type: String },
+        userId: { type: String },
+        profileId: { type: String },
+        designation: { type: String }
     }]
 });
 
