@@ -505,11 +505,8 @@ router.put('/rate_review', function (request, response) {
             if (index == -1) {
                 //add review
                 let avg_rating = findAverageRating(reviews.concat([updateData]))
-                Social.findOneAndUpdate({ _id: request.body.socialId }, { $push: { rating_reviews: updateData } }, {
-                    "$set": {
-                        avg_rating: avg_rating
-                    }
-                }, { new: true }, function (error, updated) {
+                Social.findOneAndUpdate({ _id: request.body.socialId },{ $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
+{ new: true }, function (error, updated) {
                     console.log('updated', error, updated)
                     if (error) {
                         response.status(200).json({

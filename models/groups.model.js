@@ -37,6 +37,17 @@ const groups = new Schema({
         profileId: { type: String },
         designation: { type: String }
     }],
+    avg_rating:{
+        type:Number
+    },
+    rating_reviews:[{
+        rating:{type:Number,default:0},
+        review: {type:String},
+        name: { type: String },
+        userId: { type: String },
+        profileId: { type: String },
+        designation: { type: String }
+    }],
     createdDate: {
         type: Date,
         default: Date.now
