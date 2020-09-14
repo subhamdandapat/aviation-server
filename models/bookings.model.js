@@ -8,9 +8,12 @@ const bookings = new Schema({
         ref: "Users"
     },
     bookieid: {
-        type: Schema.ObjectId,
-        required: true,
-        ref: "Pilots"
+        type: String,
+        required: true
+    },
+    bookieDesignation: {
+        type: String,
+        required: true
     },
     event_status: {
         type: String,
@@ -46,12 +49,12 @@ bookings.pre('find', function (next) {
     this.populate('userid');
     next();
 });
-bookings.pre('findOne', function (next) {
-    this.populate('bookieid');
-    next();
-});
-bookings.pre('find', function (next) {
-    this.populate('bookieid');
-    next();
-});
+// bookings.pre('findOne', function (next) {
+//     this.populate('bookieid');
+//     next();
+// });
+// bookings.pre('find', function (next) {
+//     this.populate('bookieid');
+//     next();
+// });
 module.exports = mongoose.model("bookings", bookings)

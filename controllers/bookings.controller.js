@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const bookings = require("./../models/bookings.model");
+const Users = require('./../models/users.model');
+const Pilots = require('./../models/pilot.model');
+const Mechanic = require('./../models/mechanic.model');
+const Attendant = require('./../models/attendant.model');
 const { accessSync } = require("fs");
 
 router.post("/create",async function (req, res) {
@@ -8,8 +12,9 @@ router.post("/create",async function (req, res) {
     let designation = req.query.role;
 
     req.body.bookieid = profileId;
+    req.body.bookieDesignation = designation;
     req.body.event_status = "pending";
-    let count = await checkCalenderOverlap(req.body.profileId, req.body.enent_start_date, req.body.event_end_date)
+    let count = await checkCalenderOverlap(req.query.profileId, req.body.event_start_date, req.body.event_end_date)
     if (count == 1) {
         res.status(200).json({
             error: true,
@@ -35,23 +40,33 @@ router.post("/create",async function (req, res) {
     })
 })
 
+//my requests 
 router.get("/requests", function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
-
-    let user_id = profileId;
+getProfile(designation,profileId).then(function(result){
+    console.log(result)
     let query = {
-        userid: user_id
+        userid: result.user_id._id
     }
-
-    // paginations are left to be done
-    bookings.find(query).exec(function (error, success) {
+     // paginations are left to be done
+     bookings.find(query).exec(function (error, success) {
+        console.log(error,success)
         if (!error && success != null) {
-            res.status(200).json({
-                error: false,
-                message: "Got bookings requests",
-                data: success
+            getBookieDetail(success).then(function(result){
+                res.status(200).json({
+                    error: false,
+                    message: "Got bookings requests",
+                    data: result
+                })
+            },function(error){
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })    
             })
+           
         } else {
             res.status(200).json({
                 error: true,
@@ -60,8 +75,18 @@ router.get("/requests", function (req, res) {
             })
         }
     })
+},function(error){
+    res.status(200).json({
+        error: true,
+        message: 'Error',
+        data: error
+    })
+})
+   
 })
 
+
+//i have requested 
 router.get("/myrequests", function (req, res) {
     let profileId = req.query.profileId;
     let designation = req.query.role;
@@ -73,13 +98,25 @@ router.get("/myrequests", function (req, res) {
 
     // paginations are left to be done
     bookings.find(query).exec(function (error, success) {
+        console.log('jkh ',success)
         if (!error && success != null) {
-            res.status(200).json({
-                error: false,
-                message: "Got bookings requests",
-                data: success
+
+            getBookieDetail(success).then(function(result){
+                res.status(200).json({
+                    error: false,
+                    message: "Got bookings requests",
+                    data: result
+                })
+            },function(error){
+                res.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })  
             })
+           
         } else {
+          
             res.status(200).json({
                 error: true,
                 message: error.message,
@@ -97,7 +134,7 @@ router.post("/accept", function (req, res) {
         _id: bookingsId
     }, async function (error, success) {
         if (!error && success != null) {
-            let count = await checkCalenderOverlap(success.userid, success.enent_start_date, success.event_end_date)
+            let count = await checkCalenderOverlap(success.userid, success.event_start_date, success.event_end_date)
             if (count == 1) {
                 res.status(200).json({
                     error: true,
@@ -153,9 +190,19 @@ router.post("/reject", function (req, res) {
     })
 })
 
-
-function getProfile(role, user_id) {
-    console.log(role, user_id)
+async function getBookieDetail(list){
+    let y = [];
+    for (const subs of list) {
+        await Promise.all([getProfile(subs.bookieDesignation, subs.bookieid)]).then(function (values) {
+            console.log(';;;;', values)
+            let data=subs.toObject();
+            data.bookieData=values[0]
+            y.push(data)
+        })
+    }
+    return y;
+}
+async function getProfile(role, id) {
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -176,7 +223,7 @@ function getProfile(role, user_id) {
         console.log(Collection)
 
         Collection.findOne({
-            _id: user_id
+            _id: id
         }, function (error, success) {
             if (!error && success != null) {
                 resolve(success)
@@ -188,10 +235,11 @@ function getProfile(role, user_id) {
 }
 
 async function checkCalenderOverlap(userid, startdate, enddate) {
+    console.log('kkkkkkkkkkkkkkkkkk',userid,startdate,enddate)
     let start_date = new Date(startdate)
     let end_date = new Date(enddate)
     let query = {
-        userid: userid,
+        userid: userid._id,
         $or: [
             {
                 event_start_date: {
