@@ -13,6 +13,13 @@ var Social = new mongoose.Schema({
         { 
             type: String 
         },
+        nickname:{
+            type:String
+        },
+        logo:{
+            type: mongoose.Schema.ObjectId,
+            ref: 'Image'
+        },
     joined_date:
         {
              type: Date 

@@ -87,14 +87,19 @@ router.put('/update', function (req, res) {
     // let about_me=req.body.about_me;
     let profileId = req.query.profileId;
     let designation = req.query.role;
-    let socialId = req.query.profileId;
     // console.log(req.body)
     let update = {};
     if (req.body.image) {
-        update = { "background_image": req.body.image }
+        update.background_image =  req.body.image;
     }
     if (req.body.about_me) {
-        update = { "about_me": req.body.about_me }
+        update.about_me=req.body.about_me;
+    }
+    if(req.body.nickname){
+        update.nickname=req.body.nickname;
+    }
+    if(req.body.logo){
+        update.logo=req.body.logo;
     }
     getProfile(designation, profileId)
         .then(function (profile) {
