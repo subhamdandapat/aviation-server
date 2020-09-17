@@ -234,19 +234,60 @@ router.put('/rate_review', function (request, response) {
         console.log('kj', updateData);
         Groups.findById({ _id: request.body.groupId }, function (error, groupdata) {
             console.log('social data', error, groupdata);
-            let reviews = groupdata.rating_reviews;
-            let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
-            console.log('index', index)
-            if (index == -1) {
-                //add review
-                let avg_rating = findAverageRating(reviews.concat([updateData]))
-                console.log('g ', avg_rating, [updateData])
-
-                Groups.findOneAndUpdate(
-                    { _id: request.body.groupId }, 
-                    { $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
-            
-                    { new: true }, function (error, updated) {
+            if(error){
+                response.status(200).json({
+                    error: true,
+                    message: 'Error.',
+                    data: error
+                })
+            }else if(groupdata==null){
+                response.status(200).json({
+                    error: false,
+                    message: 'Group Not Found.',
+                    data: groupdata
+                })
+            }else{
+                let reviews = groupdata.rating_reviews;
+                let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
+                console.log('index', index)
+                if (index == -1) {
+                    //add review
+                    let avg_rating = findAverageRating(reviews.concat([updateData]))
+                    console.log('g ', avg_rating, [updateData])
+    
+                    Groups.findOneAndUpdate(
+                        { _id: request.body.groupId }, 
+                        { $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
+                
+                        { new: true }, function (error, updated) {
+                            console.log('updated', error, updated)
+                            if (error) {
+                                response.status(200).json({
+                                    error: true,
+                                    message: 'Error.',
+                                    data: error
+                                })
+                            } else {
+                                response.status(200).json({
+                                    error: false,
+                                    message: 'Reviews added successsfully.',
+                                    data: updated
+                                })
+                            }
+    
+                        })
+                } else {
+                    //already present
+                    reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
+                    reviews[index].review = request.body.review ? request.body.review : reviews[index].review;
+                    let avg_rating = findAverageRating(reviews)
+                    Groups.findOneAndUpdate({ _id: request.body.groupId }, {
+                        "$set": {
+                            rating_reviews: reviews,
+                            avg_rating: avg_rating
+                        },
+    
+                    }, { new: true }, function (error, updated) {
                         console.log('updated', error, updated)
                         if (error) {
                             response.status(200).json({
@@ -257,41 +298,15 @@ router.put('/rate_review', function (request, response) {
                         } else {
                             response.status(200).json({
                                 error: false,
-                                message: 'Reviews added successsfully.',
+                                message: 'Reviews Updated Successsfully.',
                                 data: updated
                             })
                         }
-
+    
                     })
-            } else {
-                //already present
-                reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
-                reviews[index].review = request.body.review ? request.body.review : reviews[index].review;
-                let avg_rating = findAverageRating(reviews)
-                Groups.findOneAndUpdate({ _id: request.body.groupId }, {
-                    "$set": {
-                        rating_reviews: reviews,
-                        avg_rating: avg_rating
-                    },
-
-                }, { new: true }, function (error, updated) {
-                    console.log('updated', error, updated)
-                    if (error) {
-                        response.status(200).json({
-                            error: true,
-                            message: 'Error.',
-                            data: error
-                        })
-                    } else {
-                        response.status(200).json({
-                            error: false,
-                            message: 'Reviews Updated Successsfully.',
-                            data: updated
-                        })
-                    }
-
-                })
+                }
             }
+            
         })
     }, function (error) {
         response.status(200).json({

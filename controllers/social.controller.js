@@ -500,59 +500,75 @@ router.put('/rate_review', function (request, response) {
         console.log('kj', updateData);
         Social.findById({ _id: request.body.socialId }, function (error, socialdata) {
             console.log('social data', error, socialdata);
-            let reviews = socialdata.rating_reviews;
-            let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
-            console.log('index', index)
-            if (index == -1) {
-                //add review
-                let avg_rating = findAverageRating(reviews.concat([updateData]))
-                Social.findOneAndUpdate({ _id: request.body.socialId },{ $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
-{ new: true }, function (error, updated) {
-                    console.log('updated', error, updated)
-                    if (error) {
-                        response.status(200).json({
-                            error: true,
-                            message: 'Error.',
-                            data: error
-                        })
-                    } else {
-                        response.status(200).json({
-                            error: false,
-                            message: 'Reviews added successsfully.',
-                            data: updated
-                        })
-                    }
-
+            if(error){
+                response.status(200).json({
+                    error: true,
+                    message: 'Error.',
+                    data: error
                 })
-            } else {
-                //already present
-                reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
-                reviews[index].review = request.body.review ? request.body.review : reviews[index].review;
-                let avg_rating = findAverageRating(reviews)
-                Social.findOneAndUpdate({ _id: request.body.socialId }, {
-                    "$set": {
-                        rating_reviews: reviews,
-                        avg_rating: avg_rating
-                    },
-
-                }, { new: true }, function (error, updated) {
-                    console.log('updated', error, updated)
-                    if (error) {
-                        response.status(200).json({
-                            error: true,
-                            message: 'Error.',
-                            data: error
-                        })
-                    } else {
-                        response.status(200).json({
-                            error: false,
-                            message: 'Reviews Updated Successsfully.',
-                            data: updated
-                        })
-                    }
-
+            }else if(socialdata==null){
+                //not found
+                response.status(200).json({
+                    error: false,
+                    message: 'Social Profile Not Found.',
+                    data: socialdata
                 })
+            }else{
+                let reviews = socialdata.rating_reviews;
+                let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
+                console.log('index', index)
+                if (index == -1) {
+                    //add review
+                    let avg_rating = findAverageRating(reviews.concat([updateData]))
+                    Social.findOneAndUpdate({ _id: request.body.socialId },{ $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
+    { new: true }, function (error, updated) {
+                        console.log('updated', error, updated)
+                        if (error) {
+                            response.status(200).json({
+                                error: true,
+                                message: 'Error.',
+                                data: error
+                            })
+                        } else {
+                            response.status(200).json({
+                                error: false,
+                                message: 'Reviews added successsfully.',
+                                data: updated
+                            })
+                        }
+    
+                    })
+                } else {
+                    //already present
+                    reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
+                    reviews[index].review = request.body.review ? request.body.review : reviews[index].review;
+                    let avg_rating = findAverageRating(reviews)
+                    Social.findOneAndUpdate({ _id: request.body.socialId }, {
+                        "$set": {
+                            rating_reviews: reviews,
+                            avg_rating: avg_rating
+                        },
+    
+                    }, { new: true }, function (error, updated) {
+                        console.log('updated', error, updated)
+                        if (error) {
+                            response.status(200).json({
+                                error: true,
+                                message: 'Error.',
+                                data: error
+                            })
+                        } else {
+                            response.status(200).json({
+                                error: false,
+                                message: 'Reviews Updated Successsfully.',
+                                data: updated
+                            })
+                        }
+    
+                    })
+                }
             }
+           
         })
     }, function (error) {
         response.status(200).json({
