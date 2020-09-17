@@ -50,7 +50,6 @@ router.post('/register', function (req, res) {
     })
 });
 
-
 function createProfile(profile) {
     let profile_document;
     return new Promise(function (resolve, reject) {
@@ -132,7 +131,6 @@ function getProfileByProfileId(role, user_id) {
         })
     });
 }
-
 
 router.post('/login', function (req, res) {
     let email = req.body.email;
@@ -360,7 +358,6 @@ router.post('/refreshtoken', function (req, res) {
     })
 })
 
-
 router.post('/sociallogin', function (req, res) {
 
     let email = req.body.email;
@@ -474,4 +471,5 @@ router.post('/sociallogin', function (req, res) {
         }
     })
 })
+
 module.exports = router;

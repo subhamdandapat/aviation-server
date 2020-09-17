@@ -328,7 +328,7 @@ async function postLikes(postlike) {
 
 //get profile details of user 
 function getProfileDetails(role, profileId) {
-    console.log(role, profileId)
+    console.log('********************* ROLE+PROFILE',role, profileId)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -486,6 +486,7 @@ async function userProfile(id, designation) {
 //rate or review
 router.put('/rate_review', function (request, response) {
     //rate,review,socialid or userid(to whom rate is given)
+    console.log('***************** query',request.query.role,request.query.profileId)
     let updateData = {
         rating: request.body.rating ? request.body.rating : 0,
         review: request.body.review ? request.body.review : '',
@@ -493,7 +494,7 @@ router.put('/rate_review', function (request, response) {
         designation: request.query.role
     }
     getProfileDetails(request.query.role, request.query.profileId).then(function (profiledata) {
-        console.log('profiledata', profiledata);
+        console.log('*********************** profiledata', profiledata);
         updateData.userId = profiledata.user_id._id;
         updateData.name = profiledata.user_id.first_name + ' ' + profiledata.user_id.last_name;
         console.log('kj', updateData);
