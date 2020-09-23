@@ -66,9 +66,9 @@ router.post('/upload', (request, response) => {
                                 thumbnail: resizeImage,
                                 file: image
                             });
-
+console.log(',mjkggggggg    ',data)
                             data.save((error, result) => {
-
+console.log('jhghgnbjh   ',error,result)
 
 
                                 if (error) {
