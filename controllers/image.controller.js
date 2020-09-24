@@ -31,6 +31,7 @@ router.post('/upload', (request, response) => {
     }).single('file');
 
     upload(request, response, function (error) {
+        console.log('error1 ',error)
         if (error) {
             imageResponse.error = true;
             imageResponse.message = `Error :` + error.message;
@@ -45,7 +46,7 @@ router.post('/upload', (request, response) => {
                 .resize(64, 64)
                 .write(resizedImagePath, (error, resizedImage) => {
                     gm(resizedImagePath).identify((error, imageData) => {
-
+console.log('error 2 ',error,imageData)
                         if (error) {
                             imageResponse.error = true;
                             imageResponse.message = `Error :` + error.message;
