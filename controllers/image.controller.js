@@ -7,7 +7,6 @@ var router = express.Router();
 var file = require('./../models/image.model');
 const gm = require('gm').subClass({ imageMagick: true });
 
-
 //storage for files
 var storage = multer.diskStorage({
     destination: function (request, file, cb) {
@@ -20,7 +19,7 @@ var storage = multer.diskStorage({
 
 // Api for Image Upload
 router.post('/upload', (request, response) => {
-    console.log('request',request)
+    console.log('request',)
     var image;
     let imageResponse = {};
     var upload = multer({
@@ -32,7 +31,7 @@ router.post('/upload', (request, response) => {
     }).single('file');
 
     upload(request, response, function (error) {
-        console.log('error1 ',error)
+     
         if (error) {
             imageResponse.error = true;
             imageResponse.message = `Error :` + error.message;
@@ -41,60 +40,84 @@ router.post('/upload', (request, response) => {
         else if (request.file) {
 
             image = request.file;
-            let resizedImagePath = 'uploads/thumb-' + image.filename;
-            // 
-            gm(image.path)
-                .resize(64, 64)
-                .write(resizedImagePath, (error, resizedImage) => {
-                    gm(resizedImagePath).identify((error, imageData) => {
-console.log('error 2 ',error,imageData)
-                        if (error) {
-                            imageResponse.error = true;
-                            imageResponse.message = `Error :` + error.message;
-                            response.status(500).json(imageResponse);
-                        }
-                        else {
-                            if (imageData) {
-                                // 
-                                var resizeImage = {
-                                    mimetype: imageData['Mime type'],
-                                    size: imageData.Filesize,
-                                    path: imageData.path,
-                                }
-                                // 
+            console.log('image ',image.mimetype,image.mimetype.split('/'))
+            if(image.mimetype.split('/')[0]=='video'){
+                let data = new file({
+                    file: image
+                });
 
+                data.save((error, result) => {
+                    if (error) {
+                        imageResponse.error = true;
+                        imageResponse.message = `Error :` + error.message;
+                        response.status(500).json(imageResponse);
+                    }
+                    else if (result) {
+                        imageResponse.error = false;
+                        imageResponse.upload = result;
+                        imageResponse.message = `file uploaded successful.`;
+                        response.status(200).json(imageResponse);
+                    }
+                    else {
+                        imageResponse.error = true;
+                        imageResponse.message = `file upload unsuccessful.`;
+                        response.status(500).json(imageResponse);
+                    }
+                });  
+            }else{
+                let resizedImagePath = 'uploads/thumb-' + image.filename;
+                // 
+                gm(image.path)
+                    .resize(64, 64)
+                    .write(resizedImagePath, (error, resizedImage) => {
+                        gm(resizedImagePath).identify((error, imageData) => {
+    
+                            if (error) {
+                                imageResponse.error = true;
+                                imageResponse.message = `Error :` + error.message;
+                                response.status(500).json(imageResponse);
                             }
-                            let data = new file({
-                                thumbnail: resizeImage,
-                                file: image
-                            });
-console.log(',mjkggggggg    ',data)
-                            data.save((error, result) => {
-console.log('jhghgnbjh   ',error,result)
-
-
-                                if (error) {
-                                    imageResponse.error = true;
-                                    imageResponse.message = `Error :` + error.message;
-                                    response.status(500).json(imageResponse);
+                            else {
+                                if (imageData) {
+                                    // 
+                                    var resizeImage = {
+                                        mimetype: imageData['Mime type'],
+                                        size: imageData.Filesize,
+                                        path: imageData.path,
+                                    }
+                                    // 
+    
                                 }
-                                else if (result) {
-                                    imageResponse.error = false;
-                                    imageResponse.upload = result;
-                                    imageResponse.message = `file uploaded successful.`;
-                                    response.status(200).json(imageResponse);
-                                }
-                                else {
-                                    imageResponse.error = true;
-                                    imageResponse.message = `file upload unsuccessful.`;
-                                    response.status(500).json(imageResponse);
-                                }
-                            });
-                        }
+                                let data = new file({
+                                    thumbnail: resizeImage,
+                                    file: image
+                                });
+    
+                                data.save((error, result) => {
+                                    if (error) {
+                                        imageResponse.error = true;
+                                        imageResponse.message = `Error :` + error.message;
+                                        response.status(500).json(imageResponse);
+                                    }
+                                    else if (result) {
+                                        imageResponse.error = false;
+                                        imageResponse.upload = result;
+                                        imageResponse.message = `file uploaded successful.`;
+                                        response.status(200).json(imageResponse);
+                                    }
+                                    else {
+                                        imageResponse.error = true;
+                                        imageResponse.message = `file upload unsuccessful.`;
+                                        response.status(500).json(imageResponse);
+                                    }
+                                });
+                            }
+                        })
+    
                     })
-
-                })
-
+    
+            }
+           
 
         }
     });
