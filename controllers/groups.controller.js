@@ -129,11 +129,23 @@ router.get('/info', function (request, response) {
                 data: error
             })
         } else {
-            response.status(200).json({
-                error: false,
-                message: 'Group info',
-                data: success
+            memberInfo2(success).then(function (result) {
+                console.log('fff  ', result)
+                var res = success.toObject()
+                res.members = result
+                response.status(200).json({
+                    error: false,
+                    message: 'Group info',
+                    data: res
+                })
+            }, function (error) {
+                response.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
             })
+
         }
     })
 })
@@ -150,14 +162,61 @@ router.get('/all', function (request, response) {
                 data: error
             })
         } else {
-            response.status(200).json({
-                error: false,
-                message: 'List of groups',
-                data: success
+            console.log(success)
+            memberInfo1(success).then(function (result) {
+                console.log('result ', result)
+                response.status(200).json({
+                    error: false,
+                    message: 'List of groups',
+                    data: result
+                })
+            }, function (error) {
+                response.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
             })
+
         }
     })
 })
+
+async function memberInfo1(list) {
+    console.log('INSIDEIF 1', list.members)
+    let x = [];
+    for (const subs of list) {
+        await Promise.all([memberInfo2(subs)]).then(function (values) {
+            console.log('VALUES1 ', values)
+
+            var data = subs.toObject();
+            data.members = values[0]
+            x.push(data)
+
+        })
+    }
+    return x;
+}
+
+async function memberInfo2(list) {
+    console.log('INSIDEIF 2', list.members)
+    let x = [];
+    for (const subs of list.members) {
+
+        await Promise.all([getProfileDetails(subs.designation, subs.profileId)]).then(function (values) {
+            console.log('VALUES2 ', values)
+            console.log('subs', subs)
+            var data = subs.toObject();
+            console.log('data', data)
+            data.profile_picture = values[0].profile_picture?values[0].profile_picture:null
+            console.log('data    ', data)
+
+            x.push(data)
+
+        })
+    }
+    return x;
+}
 //update group infoq include all members while creation
 
 //UPDATE GROUP NAME,PURPOSE,coverPICture,profile picture
@@ -234,19 +293,19 @@ router.put('/rate_review', function (request, response) {
         console.log('kj', updateData);
         Groups.findById({ _id: request.body.groupId }, function (error, groupdata) {
             console.log('social data', error, groupdata);
-            if(error){
+            if (error) {
                 response.status(200).json({
                     error: true,
                     message: 'Error.',
                     data: error
                 })
-            }else if(groupdata==null){
+            } else if (groupdata == null) {
                 response.status(200).json({
                     error: false,
                     message: 'Group Not Found.',
                     data: groupdata
                 })
-            }else{
+            } else {
                 let reviews = groupdata.rating_reviews;
                 let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
                 console.log('index', index)
@@ -254,11 +313,11 @@ router.put('/rate_review', function (request, response) {
                     //add review
                     let avg_rating = findAverageRating(reviews.concat([updateData]))
                     console.log('g ', avg_rating, [updateData])
-    
+
                     Groups.findOneAndUpdate(
-                        { _id: request.body.groupId }, 
-                        { $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
-                
+                        { _id: request.body.groupId },
+                        { $push: { rating_reviews: updateData }, $set: { avg_rating: avg_rating } },
+
                         { new: true }, function (error, updated) {
                             console.log('updated', error, updated)
                             if (error) {
@@ -274,7 +333,7 @@ router.put('/rate_review', function (request, response) {
                                     data: updated
                                 })
                             }
-    
+
                         })
                 } else {
                     //already present
@@ -286,7 +345,7 @@ router.put('/rate_review', function (request, response) {
                             rating_reviews: reviews,
                             avg_rating: avg_rating
                         },
-    
+
                     }, { new: true }, function (error, updated) {
                         console.log('updated', error, updated)
                         if (error) {
@@ -302,11 +361,11 @@ router.put('/rate_review', function (request, response) {
                                 data: updated
                             })
                         }
-    
+
                     })
                 }
             }
-            
+
         })
     }, function (error) {
         response.status(200).json({
@@ -316,7 +375,6 @@ router.put('/rate_review', function (request, response) {
         })
     })
 })
-
 
 function getProfileDetails(role, profileId) {
     console.log(role, profileId)
