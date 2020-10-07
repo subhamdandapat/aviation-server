@@ -94,7 +94,7 @@ const socialRoute=require('./controllers/social.controller')
 const postRoute=require('./controllers/post.controller')
 const commentRoute=require('./controllers/comment.controller')
 const groupsRoute=require('./controllers/groups.controller')
-
+const adminaboutusRoute=require('./controllers/adminaboutus.controller')
 const moment=require('moment');
 
 app.use(cors());
@@ -144,6 +144,7 @@ app.use('/social',isAuthenticated,socialRoute);
 app.use('/post',isAuthenticated,postRoute);
 app.use('/comment',isAuthenticated,commentRoute);
 app.use('/groups',isAuthenticated,groupsRoute);
+app.use('/aboutus',adminaboutusRoute);
 app.get('/hello', (req, res) => res.send('Hello World!'));
 
 app.listen(port, () => console.log(`PJP Cloud APIs listening at PORT -> ${port}`))

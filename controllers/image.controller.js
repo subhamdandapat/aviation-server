@@ -127,6 +127,7 @@ router.get('/get', (request, response) => {
     let imageResponse = {};
     let select = request.query.select;
     file.findById(request.query.imageId, (error, result) => {
+        
         if (error) {
             imageResponse.error = true;
             imageResponse.message = `Server error : ` + error.message;
@@ -134,6 +135,7 @@ router.get('/get', (request, response) => {
         }
         else if (result) {
             if (select == "thumbnail") {
+            
                 response.set({
                     "Content-Disposition": 'attachment; filename="' + 'uploads/thumb-' + result.file.originalname + '"',
                     "Content-Type": result.thumbnail.mimetype
