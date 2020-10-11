@@ -19,7 +19,7 @@ var storage = multer.diskStorage({
 
 // Api for Image Upload
 router.post('/upload', (request, response) => {
-    console.log('request',)
+    // console.log('request',)
     var image;
     let imageResponse = {};
     var upload = multer({
@@ -40,7 +40,8 @@ router.post('/upload', (request, response) => {
         else if (request.file) {
 
             image = request.file;
-            console.log('image ',image.mimetype,image.mimetype.split('/'))
+            // console.log('image ',image.mimetype,image.mimetype.split('/'))
+            console.log(image.mimetype.split('/')[0]);
             if(image.mimetype.split('/')[0]=='video'){
                 let data = new file({
                     file: image
@@ -48,6 +49,7 @@ router.post('/upload', (request, response) => {
 
                 data.save((error, result) => {
                     console.log("video result------>>>>"+result);
+                    console.log(error);
                     if (error) {
                         imageResponse.error = true;
                         imageResponse.message = `Error :` + error.message;
