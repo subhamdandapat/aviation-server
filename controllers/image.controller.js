@@ -47,6 +47,7 @@ router.post('/upload', (request, response) => {
                 });
 
                 data.save((error, result) => {
+                    console.log("video result------>>>>"+result);
                     if (error) {
                         imageResponse.error = true;
                         imageResponse.message = `Error :` + error.message;
