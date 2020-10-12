@@ -148,8 +148,16 @@ router.get('/get', (request, response) => {
             else {
                 response.set({
                     "Content-Disposition": 'attachment; filename="' + result.file.originalname + '"',
+                    "Content-Range":"bytes " + ini + "-" + end + "/" + total,
+                    "Accept-Ranges": "bytes",
+                    "Content-Length":chunkSize,
                     "Content-Type": result.file.mimetype
                 });
+                // response.set('Connection', 'keep-alive');
+                // response.set("Content-Range","bytes " + ini + "-" + end + "/" + total);
+                // response.set("Accept-Ranges", "bytes");
+                // response.set("Content-Length", chunkSize);
+                // response.set("Content-Type", contentType);
                 fs.createReadStream(result.file.path).pipe(response);
 
             }
