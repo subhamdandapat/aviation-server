@@ -148,8 +148,9 @@ router.get('/get', (request, response) => {
             else {
                 response.set({
                     "Content-Disposition": 'attachment; filename="' + result.file.originalname + '"',
-                    "Content-Range":"bytes " + ini + "-" + end + "/" + total,
+                    "Content-Range":"bytes",
                     "Accept-Ranges": "bytes",
+                    "Accept-Encoding":"chunked",
                     "Content-Length":chunkSize,
                     "Content-Type": result.file.mimetype
                 });
