@@ -37,6 +37,11 @@ var Social = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Groups'
     }],
+    friendRequests: [{
+     
+        type: mongoose.Schema.ObjectId,
+        ref: 'FriendRequest'
+    }],
     avg_rating:{
         type:Number
     },

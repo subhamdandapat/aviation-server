@@ -239,10 +239,10 @@ async function post_images(profileId) {
 router.post('/social_profile', function (req, res) {
     let profileId = req.body.profileId;
     let designation = req.body.designation;
-    // console.log('reu.body', profileId, designation)
+    console.log('reu.body', profileId, designation)
     getProfile(designation, profileId)
         .then(function (profile) {
-            // console.log('profileeeeeeee', profile)
+            console.log('profileeeeeeee', profile)
             getUsersWholeProfile(profile).then(function (data) {
                 // console.log('dataaaaaaaa', data)
                 let picsdata = [];
@@ -331,7 +331,7 @@ async function postLikes(postlike) {
 }
 
 
-//get profile details of user 
+//GET PROFILE DETAIS OF USER USING RDESIGNATION AND PROFILEID 
 function getProfileDetails(role, profileId) {
     console.log('********************* ROLE+PROFILE',role, profileId)
     return new Promise(function (resolve, reject) {
@@ -364,9 +364,11 @@ function getProfileDetails(role, profileId) {
         })
     });
 }
+
+//GET DATA FROM SOCIAL DB USING USERID AND POPULATE FRIEND REQUESTS ALSO
 async function social_profile(userId) {
     return new Promise(function (resolve, reject) {
-        Social.findOne({ user_id: userId }, function (error, success) {
+        Social.findOne({ user_id: userId }).populate('friendRequests').exec( function (error, success) {
             if (error) {
                 reject(error)
             } else {
@@ -375,7 +377,6 @@ async function social_profile(userId) {
         })
     })
 }
-
 
 async function groups(userId) {
     return new Promise(function (resolve, reject) {
@@ -394,6 +395,8 @@ async function groups(userId) {
         })
     })
 }
+
+
 //SEARCH A USER BY NAME          casesenitive
 router.get('/search', function (req, res) {
     //letter

@@ -96,6 +96,8 @@ const commentRoute=require('./controllers/comment.controller')
 const groupsRoute=require('./controllers/groups.controller')
 const adminaboutusRoute=require('./controllers/adminaboutus.controller')
 const newsRoute=require('./controllers/news.controller')
+const friendRequestRoute=require('./controllers/friendRequest.controller')
+
 
 const moment=require('moment');
 
@@ -146,6 +148,7 @@ app.use('/social',isAuthenticated,socialRoute);
 app.use('/post',isAuthenticated,postRoute);
 app.use('/comment',isAuthenticated,commentRoute);
 app.use('/groups',isAuthenticated,groupsRoute);
+app.use('/requests',isAuthenticated,friendRequestRoute);
 app.use('/aboutus',adminaboutusRoute);
 app.use('/news',newsRoute);
 
