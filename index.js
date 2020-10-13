@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 5002;
+const port = 8080;
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 var mongoose = require('mongoose');
