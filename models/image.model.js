@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 const imageSchema = mongoose.Schema({
 
-    file: {
-        type: Object
+    filePath: {
+        type: String
     },
-    thumbnail: {
-        type: Object
-    },
+   
+    // thumbnail: {
+    //     type: Object
+    // },
     createdDate: {
         type: Date,
         default: Date.now
@@ -15,11 +16,11 @@ const imageSchema = mongoose.Schema({
     updatedDate: {
         type: Date,
         default: Date.now
-    },
-    enabled: {
-        type: Number,
-        default: 1
     }
+    // enabled: {
+    //     type: Number,
+    //     default: 1
+    // }
 
 });
 
