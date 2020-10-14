@@ -12,23 +12,22 @@ var Post = new mongoose.Schema({
         type: String
     },
     socialId: {
-         type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.ObjectId,
         ref: 'Social'
     },
-    image: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Image'
-    }],
+    image: [
+        { type: String }
+    ],
     video: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Image'
+        type: String
+        
     }],
     text:
     {
         type: String
     },
-    location:{
-        type:String
+    location: {
+        type: String
     },
     likes: [{
         profileId: {
@@ -43,9 +42,9 @@ var Post = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Comment'
     }],
-    taggedUsers:[],
-    profile_picture:{
-        type:mongoose.Schema.ObjectId,
+    taggedUsers: [],
+    profile_picture: {
+        type: mongoose.Schema.ObjectId,
         ref: "Image"
     },
     createdDate: {
