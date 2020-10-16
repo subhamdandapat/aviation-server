@@ -11,13 +11,13 @@ const { request } = require('express');
 //storage for files
 var storage = multer.diskStorage({
     destination: function (request, file, cb) {
-        cb(null, './uploads')
+        cb(null, 'uploads')
     },
     filename: function (request, file, cb) {
         const ext = path.extname(file.originalname);
         console.log('ext ', ext)
         const id = uuidv4();
-        const filePath = `images/${id}${ext}`;
+        const filePath = `${id}${ext}`;
         console.log('filepath', filePath)
 
         cb(null, filePath)
