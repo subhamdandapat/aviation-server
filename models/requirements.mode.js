@@ -19,8 +19,7 @@ const Requirements = Schema({
     },
     images: [
         {
-            type: Schema.ObjectId,
-            ref: 'Image'
+            type: String
         }
     ],
     for: [

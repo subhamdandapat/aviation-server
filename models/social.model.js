@@ -6,8 +6,7 @@ var Social = new mongoose.Schema({
         ref: 'Users'
     },
     background_image: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Image'
+        type:String
     },
     about_me:  
         { 
@@ -17,8 +16,7 @@ var Social = new mongoose.Schema({
             type:String
         },
         logo:{
-            type: mongoose.Schema.ObjectId,
-            ref: 'Image'
+            type:String
         },
     joined_date:
         {

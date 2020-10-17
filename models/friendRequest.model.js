@@ -25,12 +25,10 @@ const friendRequest = new Schema({
         enum: ["Sent","Received","Accept", "Reject"]
     },
     senderProfile_picture: {
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     },
     receiverProfile_picture: {
-        type: Schema.ObjectId,
-        ref: "Image"
+        type: String
     },
     createdDate: {
         type: Date,

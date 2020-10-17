@@ -20,12 +20,10 @@ const groups = new Schema({
         type: String
     },
     profile_picture: {
-        type: Schema.ObjectId,
-        ref: "Image"
+        type: String
     },
     cover_picture: {
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     },
     posts: [{
         type: Schema.ObjectId,

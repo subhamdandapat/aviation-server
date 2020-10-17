@@ -57,8 +57,7 @@ var Pilots = new mongoose.Schema({
         type: String
     },
     profile_picture: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Image'
+        type:String
     }
 });
 

@@ -6,8 +6,7 @@ const aboutus = new Schema({
         type: String
     },
     image: [{
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     }],
     createdDate: {
         type: Date,

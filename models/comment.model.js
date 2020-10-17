@@ -21,12 +21,10 @@ const comment = new Schema({
         type: String
     },
     image: {
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     },
     profile_picture:{
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     },
     createdDate: {
         type: Date,

@@ -44,8 +44,7 @@ var Post = new mongoose.Schema({
     }],
     taggedUsers: [],
     profile_picture: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Image"
+        type: String
     },
     createdDate: {
         type: Date,

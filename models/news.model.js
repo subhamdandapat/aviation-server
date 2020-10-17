@@ -11,8 +11,7 @@ const news = new Schema({
         required:true
     },
     image: [{
-        type: Schema.ObjectId,
-        ref: "Image"
+        type:String
     }],
     createdDate: {
         type: Date,

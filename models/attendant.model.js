@@ -34,8 +34,7 @@ var Attendant = new mongoose.Schema({
         enum: ["Yes", "No"]
     },
     profile_picture: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Image'
+        type:String
     }
 });
 
