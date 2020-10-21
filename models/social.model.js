@@ -6,46 +6,56 @@ var Social = new mongoose.Schema({
         ref: 'Users'
     },
     background_image: {
-        type:String
+        type: String
     },
-    about_me:  
-        { 
-            type: String 
-        },
-        nickname:{
-            type:String
-        },
-        logo:{
-            type:String
-        },
+    about_me:
+    {
+        type: String
+    },
+    nickname: {
+        type: String
+    },
+    logo: {
+        type: String
+    },
     joined_date:
-        {
-             type: Date 
-            },
+    {
+        type: Date
+    },
     following:
-     { 
-         type: String
-         },
-    
+        [{
+            profileId: { type: String },
+            designation: { type: String },
+            name: { type: String },
+            profile_picture: { type: String }
+        }],
+    followers: [{
+
+        profileId: { type: String },
+        designation: { type: String },
+        name: { type: String },
+        profile_picture: { type: String }
+    }],
+
     posts: [{
         type: String
     }],
     groups: [{
-     
+
         type: mongoose.Schema.ObjectId,
         ref: 'Groups'
     }],
     friendRequests: [{
-     
+
         type: mongoose.Schema.ObjectId,
         ref: 'FriendRequest'
     }],
-    avg_rating:{
-        type:Number
+    avg_rating: {
+        type: Number
     },
-    rating_reviews:[{
-        rating:{type:Number,default:0},
-        review: {type:String},
+    rating_reviews: [{
+        rating: { type: Number, default: 0 },
+        review: { type: String },
         name: { type: String },
         userId: { type: String },
         profileId: { type: String },

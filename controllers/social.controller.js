@@ -90,16 +90,16 @@ router.put('/update', function (req, res) {
     // console.log(req.body)
     let update = {};
     if (req.body.image) {
-        update.background_image =  req.body.image;
+        update.background_image = req.body.image;
     }
     if (req.body.about_me) {
-        update.about_me=req.body.about_me;
+        update.about_me = req.body.about_me;
     }
-    if(req.body.nickname){
-        update.nickname=req.body.nickname;
+    if (req.body.nickname) {
+        update.nickname = req.body.nickname;
     }
-    if(req.body.logo){
-        update.logo=req.body.logo;
+    if (req.body.logo) {
+        update.logo = req.body.logo;
     }
     getProfile(designation, profileId)
         .then(function (profile) {
@@ -286,7 +286,6 @@ async function getUsersWholeProfile(profile) {
     return x;
 }
 
-
 async function user_posts(profileId) {
     return new Promise(function (resolve, reject) {
         Post.find({ profileId: profileId }, function (error, success) {
@@ -302,7 +301,6 @@ async function user_posts(profileId) {
         })
     })
 }
-
 
 async function postLike(posts) {
     console.log('INSIDE POSTS LIKES')
@@ -333,7 +331,7 @@ async function postLikes(postlike) {
 
 //GET PROFILE DETAIS OF USER USING RDESIGNATION AND PROFILEID 
 function getProfileDetails(role, profileId) {
-    console.log('********************* ROLE+PROFILE',role, profileId)
+    console.log('********************* ROLE+PROFILE', role, profileId)
     return new Promise(function (resolve, reject) {
         let Collection;
         switch (role) {
@@ -368,7 +366,7 @@ function getProfileDetails(role, profileId) {
 //GET DATA FROM SOCIAL DB USING USERID AND POPULATE FRIEND REQUESTS ALSO
 async function social_profile(userId) {
     return new Promise(function (resolve, reject) {
-        Social.findOne({ user_id: userId }).populate('friendRequests').exec( function (error, success) {
+        Social.findOne({ user_id: userId }).populate('friendRequests').exec(function (error, success) {
             if (error) {
                 reject(error)
             } else {
@@ -494,7 +492,7 @@ async function userProfile(id, designation) {
 //rate or review
 router.put('/rate_review', function (request, response) {
     //rate,review,socialid or userid(to whom rate is given)
-    console.log('***************** query',request.query.role,request.query.profileId)
+    console.log('***************** query', request.query.role, request.query.profileId)
     let updateData = {
         rating: request.body.rating ? request.body.rating : 0,
         review: request.body.review ? request.body.review : '',
@@ -508,44 +506,44 @@ router.put('/rate_review', function (request, response) {
         console.log('kj', updateData);
         Social.findById({ _id: request.body.socialId }, function (error, socialdata) {
             console.log('social data', error, socialdata);
-            if(error){
+            if (error) {
                 response.status(200).json({
                     error: true,
                     message: 'Error.',
                     data: error
                 })
-            }else if(socialdata==null){
+            } else if (socialdata == null) {
                 //not found
                 response.status(200).json({
                     error: false,
                     message: 'Social Profile Not Found.',
                     data: socialdata
                 })
-            }else{
+            } else {
                 let reviews = socialdata.rating_reviews;
                 let index = (reviews).findIndex(x => x.profileId == request.query.profileId);
                 console.log('index', index)
                 if (index == -1) {
                     //add review
                     let avg_rating = findAverageRating(reviews.concat([updateData]))
-                    Social.findOneAndUpdate({ _id: request.body.socialId },{ $push: { rating_reviews: updateData },$set: {avg_rating: avg_rating } },
-    { new: true }, function (error, updated) {
-                        console.log('updated', error, updated)
-                        if (error) {
-                            response.status(200).json({
-                                error: true,
-                                message: 'Error.',
-                                data: error
-                            })
-                        } else {
-                            response.status(200).json({
-                                error: false,
-                                message: 'Reviews added successsfully.',
-                                data: updated
-                            })
-                        }
-    
-                    })
+                    Social.findOneAndUpdate({ _id: request.body.socialId }, { $push: { rating_reviews: updateData }, $set: { avg_rating: avg_rating } },
+                        { new: true }, function (error, updated) {
+                            console.log('updated', error, updated)
+                            if (error) {
+                                response.status(200).json({
+                                    error: true,
+                                    message: 'Error.',
+                                    data: error
+                                })
+                            } else {
+                                response.status(200).json({
+                                    error: false,
+                                    message: 'Reviews added successsfully.',
+                                    data: updated
+                                })
+                            }
+
+                        })
                 } else {
                     //already present
                     reviews[index].rating = request.body.rating ? request.body.rating : reviews[index].rating;
@@ -556,7 +554,7 @@ router.put('/rate_review', function (request, response) {
                             rating_reviews: reviews,
                             avg_rating: avg_rating
                         },
-    
+
                     }, { new: true }, function (error, updated) {
                         console.log('updated', error, updated)
                         if (error) {
@@ -572,11 +570,11 @@ router.put('/rate_review', function (request, response) {
                                 data: updated
                             })
                         }
-    
+
                     })
                 }
             }
-           
+
         })
     }, function (error) {
         response.status(200).json({
@@ -595,6 +593,159 @@ function findAverageRating(list) {
     var avg = total / list.length;
     console.log(avg, total)
     return (avg.toPrecision(1))
+}
+
+//START FOLLOWING A SOCIAL PROFILE
+router.post('/follow', function (request, response) {
+    // req.query.profileId,req.query.role,req.body.profileId,req.body.designation
+
+    getSocialId(request.query, request.body).then(function (result) {
+        console.log('jkfhg ', result)
+        let followerdata = {                //me
+            profileId: request.query.profileId,
+            designation: request.query.role,
+            socialId: result[0][0]._id,
+            name: result[0][0].user_id.first_name + ' ' + result[0][0].user_id.last_name,
+            profile_picture: result[0][0].profile_picture
+        }
+        let followingdata = {
+            profileId: request.body.profileId,
+            designation: request.body.designation,
+            socialId: result[0][1]._id,
+            name: result[0][1].user_id.first_name + ' ' + result[0][0].user_id.last_name,
+            profile_picture: result[0][1].profile_picture
+        }
+        saveToSocial(followerdata, followingdata).then(function (savedResult) {
+            console.log('lkj ', savedResult)
+            response.status(200).json({
+                error: false,
+                message: 'Followed Social Profile.',
+                data: savedResult[0][1]
+            })
+        }, function (error) {
+            response.status(200).json({
+                error: false,
+                message: 'Error.',
+                data: error
+            })
+        })
+
+    }, function (error) {
+        console.log(error)
+        response.status(200).json({
+            error: false,
+            message: 'Error.',
+            data: error
+        })
+    })
+})
+
+async function getSocialId(query, body) {
+    let x = [];
+    await Promise.all([fetchSocialId(query.profileId, query.role), fetchSocialId(body.profileId, body.designation)]).then(function (values) {
+        console.log('VALUES ', values)
+        x.push(values)
+
+    })
+    return x
+}
+
+async function fetchSocialId(profileId, designation) {
+    return new Promise(function (resolve, reject) {
+        let Collection;
+        switch (designation) {
+            case 'Pilot':
+                Collection = Pilots;
+                break;
+            case 'Flight Attendant':
+                Collection = Attendant;
+                break;
+            case 'Mechanic':
+                Collection = Mechanic;
+                break;
+            default:
+                reject({})
+                break;
+        }
+
+        Collection.findOne({
+            _id: profileId                                                 //find by userid in profile
+        }, function (error, success) {
+            console.log('xbvc ', success, error)
+            if (!error && success != null) {
+                Social.findOne({ user_id: success.user_id._id }, function (error, result) {
+                    console.log('kljfk ', result)
+                    if (!error && result != null) {
+                        result.profile_picture=success.profile_picture
+                        resolve(result)
+                    }
+                    else {
+                        reject(error)
+                    }
+                })
+
+            } else {
+
+                reject(error)
+            }
+        })
+    });
+}
+
+async function saveToSocial(followerdata, followingdata) {
+    console.log('inside savetosocial', followerdata, followingdata)
+    let x = [];
+    await Promise.all([saveFollowerToSocial(followerdata), saveFollowingToSocial(followingdata)]).then(function (values) {
+        console.log('VALUES  222 ', values)
+        x.push(values)
+
+    })
+    return x;
+}
+async function saveFollowerToSocial(data) {
+    console.log('savesocialfollower',data)
+    return new Promise(function (resolve, reject) {
+        Social.findByIdAndUpdate({ _id: data.socialId }, {
+            $addToSet: {
+                followers: {
+                    profileId: data.profileId,
+                    designation: data.designation,
+                     name: data.name, 
+                     profile_picture: data.profile_picture
+                }
+            }
+        },
+            { returnOriginal: false },
+            function (error, newupdate) {
+                console.log('error1', error, newupdate)
+                if (!error && newupdate != null) {
+                    resolve(newupdate)
+                }
+                else {
+                    reject(error)
+                }
+            })
+    })
+}
+
+async function saveFollowingToSocial(data) {
+    console.log('savesocialfollowing',data)
+    return new Promise(function (resolve, reject) {
+        Social.findByIdAndUpdate({ _id: data.socialId }, { $addToSet: { following: { profileId: data.profileId, 
+            designation: data.designation ,
+              name: data.name, 
+            profile_picture: data.profile_picture} } },
+            { returnOriginal: false },
+            function (error, newupdate) {
+                console.log('error1', error, newupdate)
+                if (!error && newupdate != null) {
+                    resolve(newupdate)
+                }
+                else {
+                    reject(error)
+                }
+            })
+    })
 }
 
 module.exports = router;
