@@ -22,7 +22,7 @@ router.post('/register', function (req, res) {
                 createProfile(req.body)
                     .then(function (success) {
                         let email = req.body.email;
-                        let url = "http://13.232.204.248:3000/verify?_id=" + req.body.user_id
+                        let url = "http://ec2-13-233-147-154.ap-south-1.compute.amazonaws.com:5042/verify?_id=" + req.body.user_id
                         EmailHelper.sendEmail(email, 'You have been registered successfully', "<p>You have been registered.Click <a href='" + url + "'>here </a> to verify email</p>");
                         res.status(200).json({
                             error: false,
