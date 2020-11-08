@@ -133,4 +133,29 @@ async function addRequestToSocial(userid, frndId) {
     })
 
 }
+
+
+
+//accept,reject or revoke a friend request
+router.put('/action',function(request,response){
+    //friendrequest id
+    FriendRequest.findOneAndUpdate({_id:request.body.id},{"$set":{status:request.body.action}},{new:true},function(error,success){
+console.log('jhhjk',error,success)
+if(error){
+    response.status(200).json({
+        error: true,
+        message: 'Error',
+        data: error
+    })
+}else{
+    response.status(200).json({
+        error: false,
+        message: 'Friend Request Updated ',
+        data: success
+    })
+}
+
+    })
+
+})
 module.exports = router;

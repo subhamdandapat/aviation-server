@@ -22,7 +22,7 @@ const friendRequest = new Schema({
     },
     status: {
         type: String,
-        enum: ["Sent","Received","Accept", "Reject"]
+        enum: ["Sent","Received","Accept", "Reject",'"Revoke']
     },
     senderProfile_picture: {
         type:String
@@ -31,6 +31,10 @@ const friendRequest = new Schema({
         type: String
     },
     createdDate: {
+        type: Date,
+        default: Date.now
+    },
+updatedDate: {
         type: Date,
         default: Date.now
     }
