@@ -446,7 +446,8 @@ async function getProfileIdDesignation(list, search_letter) {
         if (name.startsWith(search_letter)) {
             await Promise.all([userProfile(subs._id, subs.designation)]).then(function (values) {
                 console.log("values------>>>" + values);
-                y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id, designation: subs.designation, profileId: values[0][0]._id })
+                y.push({ name: subs.first_name + ' ' + subs.last_name, userId: subs._id,
+                 designation: subs.designation, profileId: values[0][0]._id,profile_picture:values[0][0].profile_picture?values[0][0].profile_picture:null })
             })
         }
 
