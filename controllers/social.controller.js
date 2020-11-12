@@ -16,7 +16,7 @@ router.get('/profile', function (req, res) {
             // console.log(';;;', profile)
             Social.findOne({
                 user_id: profile.user_id._id
-            }, function (error, success) {
+            }).populate('friendRequests').exec(function (error, success) {
                 // console.log('////', error, success)
                 if (error) {
                     res.status(200).json({
