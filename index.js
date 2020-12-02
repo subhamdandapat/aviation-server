@@ -97,9 +97,11 @@ const groupsRoute=require('./controllers/groups.controller')
 const adminaboutusRoute=require('./controllers/adminaboutus.controller')
 const newsRoute=require('./controllers/news.controller')
 const friendRequestRoute=require('./controllers/friendRequest.controller')
+const notificationRoute=require('./controllers/notification.controller')
 
 
 const moment=require('moment');
+// import { firebase_admin / from './firebase-config'
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
@@ -154,6 +156,7 @@ app.use('/groups',isAuthenticated,groupsRoute);
 app.use('/requests',isAuthenticated,friendRequestRoute);
 app.use('/aboutus',adminaboutusRoute);
 app.use('/news',newsRoute);
+app.use('/notification',notificationRoute);
 
 app.get('/hello', (req, res) => res.send('Hello World!'));
 

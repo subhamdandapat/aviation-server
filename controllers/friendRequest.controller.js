@@ -6,7 +6,7 @@ const Mechanic = require('./../models/mechanic.model');
 const Attendant = require('./../models/attendant.model');
 const Social = require('./../models/social.model');
 const FriendRequest = require('./../models/friendRequest.model');
-
+const notification = require('./../models/notification.model')
 
 //SEND NEW FRIEND REQUEST
 router.post('/send', function (request, response) {
@@ -38,11 +38,35 @@ router.post('/send', function (request, response) {
             else {
                 updateSocialId(result, sentrequest._id).then(function (result) {
                     console.log(result)
-                    response.status(200).json({
-                        error: false,
-                        message: 'Friend Request Sent.',
-                        data: sentrequest
+
+                    // create notificationaa
+                    let notificationData = new notification({
+                        title: data.senderName + ' sent you a friend request.',
+                        profileId: data.senderProfileId,
+                        designation: data.senderDesignation,
+                        profile_picture: data.senderProfile_picture,
+                        noti_receiver: [{
+                            profileId: request.body.receiverProfileId,
+                            designation: request.body.receiverDesignation
+                        }]
+                    });
+                    notificationData.save(function (error, notificationresult) {
+                        console.log('notification', error, notificationresult)
+                        if (error) {
+                            response.status(200).json({
+                                error: true,
+                                message: 'Error',
+                                data: error
+                            })
+                        } else {
+                            response.status(200).json({
+                                error: false,
+                                message: 'Friend Request Sent.',
+                                data: sentrequest
+                            })
+                        }
                     })
+
                 }, function (error) {
                     response.status(200).json({
                         error: true,
@@ -67,10 +91,10 @@ async function getsenderReceiverDetails(data) {
     getProfileDetails(data.receiverDesignation, data.receiverProfileId)]).then(function (values) {
         console.log('VALUES ', values)
         newdata.senderName = values[0].user_id.first_name + ' ' + values[0].user_id.last_name;
-        newdata.senderProfile_picture = values[0].profile_picture?values[0].profile_picture:null;
+        newdata.senderProfile_picture = values[0].profile_picture ? values[0].profile_picture : null;
         newdata.senderUserId = values[0].user_id._id;
         newdata.receiverName = values[1].user_id.first_name + ' ' + values[1].user_id.last_name;
-        newdata.receiverProfile_picture = values[1].profile_picture?values[1].profile_picture:null;
+        newdata.receiverProfile_picture = values[1].profile_picture ? values[1].profile_picture : null;
         newdata.receiverUserId = values[1].user_id._id;
 
     })
@@ -137,23 +161,54 @@ async function addRequestToSocial(userid, frndId) {
 
 
 //accept,reject or revoke a friend request
-router.put('/action',function(request,response){
+router.put('/action', function (request, response) {
     //friendrequest id
-    FriendRequest.findOneAndUpdate({_id:request.body.id},{"$set":{status:request.body.action}},{new:true},function(error,success){
-console.log('jhhjk',error,success)
-if(error){
-    response.status(200).json({
-        error: true,
-        message: 'Error',
-        data: error
-    })
-}else{
-    response.status(200).json({
-        error: false,
-        message: 'Friend Request Updated ',
-        data: success
-    })
-}
+    FriendRequest.findOneAndUpdate({ _id: request.body.id }, { "$set": { status: request.body.action } }, { new: true }, function (error, success) {
+        console.log('jhhjk', error, success)
+        if (error) {
+            response.status(200).json({
+                error: true,
+                message: 'Error',
+                data: error
+            })
+        } else {
+            getProfileDetails(request.query.role, request.query.profileId).then(function (profiledetail) {
+                console.log('profile deatils ', profiledetail)
+                let action=request.body.action=='Accept'?'Accepted':request.body.action=='Reject'?'Rejected':request.body.action=='Revoke'?'Revoked':'Ignored'
+                let notificationData = new notification({
+                    title: profiledetail.user_id.first_name + ' ' + profiledetail.user_id.last_name + ' has ' + action + ' friend request.',
+                    profileId: profiledetail._id,
+                    designation: profiledetail.user_id.designation,
+                    profile_picture: profiledetail.profile_picture ? profiledetail.profile_picture : null,
+                    noti_receiver:request.body.action== 'Accept'|| 'Reject'?[{profileId:success.senderProfileId,designation:success.senderDesignation}]:[{profileId:success.receiverProfileId,designation:success.receiverDesignation}]
+                })
+                notificationData.save(function (error, notificationresult) {
+                    console.log('notification', error, notificationresult)
+                    if (error) {
+                        response.status(200).json({
+                            error: true,
+                            message: 'Error',
+                            data: error
+                        })
+                    } else {
+                        response.status(200).json({
+                            error: false,
+                            message: 'Friend Request Updated ',
+                            data: success
+                        })
+                    }
+                })
+            }, function (error) {
+                response.status(200).json({
+                    error: true,
+                    message: 'Error',
+                    data: error
+                })
+            })
+
+
+
+        }
 
     })
 
